@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shop Floor Part & Fastenal VMI Visual Locator</title>
+  
+  <!-- CDN Scripts for Tailwind, Icons, and Fuzzy Search -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
+
+  <style>
+    @keyframes pulse-ring {
+      0% { transform: scale(0.6); opacity: 0.9; }
+      50% { transform: scale(1.7); opacity: 0.25; }
+      100% { transform: scale(0.6); opacity: 0.9; }
+    }
+    .pin-pulse {
+      animation: pulse-ring 1.8s infinite cubic-bezier(0.4, 0, 0.6, 1);
+      transform-origin: center;
+    }
+    .map-active-calibrate { cursor: crosshair !important; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #090d16; }
+    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #334155; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 flex flex-col h-screen overflow-hidden font-sans">
+
+  <!-- Top Navigation Header -->
+  <header class="bg-slate-900 border-b border-slate-800 px-6 py-3 flex items-center justify-between shadow-md z-20">
+    <div class="flex items-center gap-3">
+      <div class="p-2 bg-blue-500/10 border border-blue-500/30 rounded-lg text-blue-400">
+        <i data-lucide="building-2" class="w-5 h-5"></i>
+      </div>
+      <div>
+        <h1 class="text-base font-bold tracking-wide uppercase text-slate-100 flex items-center gap-2">
+          Shop Floor Part & Fastenal VMI Locator
+        </h1>
+        <p class="text-xs text-slate-400">24/7 Live Auto-Sync Inventory & Map System</p>
+      </div>
+    </div>
+
+    <!-- Right Controls -->
+    <div class="flex items-center gap-2.5">
+      <!-- Sync Status Indicator -->
+      <div class="flex items-center gap-2 px-3 py-1.5 bg-slate-950 border border-slate-800 rounded-lg text-xs">
+        <span id="syncDot" class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span id="syncStatusText" class="text-slate-300 font-mono text-[11px]">Connecting...</span>
+        <button id="manualSyncBtn" class="ml-1 text-slate-400 hover:text-slate-200" title="Refresh Latest SharePoint Data">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+        </button>
+      </div>
+
+      <!-- Update Map Button -->
+      <label class="flex items-center gap-1.5 cursor-pointer bg-slate-800 hover:bg-slate-750 px-3 py-1.5 rounded-lg border border-slate-700 text-xs font-medium text-slate-200 transition">
+        <i data-lucide="image" class="w-4 h-4 text-amber-400"></i>
+        <span>Update Map</span>
+        <input type="file" id="mapUpload" accept="image/*" class="hidden" />
+      </label>
+
+      <!-- Calibrate Pins Button -->
+      <button id="calibrateBtn" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-750 border border-slate-700 text-xs font-medium text-slate-200 transition">
+        <i data-lucide="crosshair" class="w-4 h-4 text-sky-400"></i>
+        <span id="calibrateLabel">Calibrate Pins</span>
+      </button>
+
+      <!-- Backup JSON -->
+      <button id="exportConfigBtn" class="p-1.5 bg-slate-800 hover:bg-slate-750 border border-slate-700 rounded-lg text-slate-300 text-xs" title="Export Backup JSON">
+        <i data-lucide="download" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Split Layout -->
+  <div class="flex flex-1 overflow-hidden relative">
+
+    <!-- Left Sidebar (440px) -->
+    <aside class="w-[440px] bg-slate-900 border-r border-slate-800 flex flex-col h-full shadow-2xl z-10">
+      
+      <!-- Search & Filters -->
+      <div class="p-4 border-b border-slate-800 space-y-3 bg-slate-900/90">
+        <div>
+          <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center justify-between mb-1">
+            <span>Search Part #, Description, or Building</span>
+            <span id="partsCount" class="text-slate-500 font-normal">0 items</span>
+          </label>
+          <div class="relative">
+            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-3"></i>
+            <input 
+              type="text" 
+              id="searchInput" 
+              placeholder="Search Propell #, Fastenal #, or Description..." 
+              class="w-full bg-slate-950 border border-slate-700 rounded-lg pl-9 pr-8 py-2 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
+            />
+            <button id="clearSearch" class="hidden absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-200">
+              <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Filter Pills -->
+        <div class="flex gap-1.5 text-[11px]">
+          <button id="filterAll" class="filter-btn active flex-1 py-1 rounded bg-blue-600 text-white font-semibold border border-blue-500">All</button>
+          <button id="filterPropell" class="filter-btn flex-1 py-1 rounded bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-750">Propell Stock</button>
+          <button id="filterFastenalLive" class="filter-btn flex-1 py-1 rounded bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-750">Fastenal Live</button>
+          <button id="filterFastenalPending" class="filter-btn flex-1 py-1 rounded bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-750">Fastenal Pending</button>
+        </div>
+      </div>
+
+      <!-- Search Results Strip -->
+      <div id="resultsStrip" class="max-h-40 overflow-y-auto p-2.5 border-b border-slate-800 space-y-1.5 bg-slate-950/60"></div>
+
+      <!-- Master Part & Location Details Panel -->
+      <div id="fullPartMasterPanel" class="flex-1 overflow-y-auto p-4 space-y-4">
+        
+        <!-- Top Status Tag -->
+        <div class="border-b border-slate-800 pb-3 space-y-2">
+          <div class="flex items-center justify-between">
+            <span id="supplyBadge" class="text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded border">--</span>
+            <span id="detailLocationsCount" class="text-[11px] text-slate-400 font-mono">0 Locations</span>
+          </div>
+
+          <!-- Dual Part Number Display -->
+          <div class="grid grid-cols-2 gap-2 pt-1">
+            <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800">
+              <span class="text-slate-500 block text-[10px] uppercase font-bold tracking-wider">Propell Part #</span>
+              <span id="detailPropellPart" class="text-base font-bold font-mono text-blue-400">--</span>
+            </div>
+            <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800">
+              <span class="text-slate-500 block text-[10px] uppercase font-bold tracking-wider">Fastenal Part #</span>
+              <span id="detailFastenalPart" class="text-base font-bold font-mono text-amber-400">--</span>
+            </div>
+          </div>
+
+          <p id="detailDescription" class="text-xs font-medium text-slate-200 mt-2 leading-relaxed">Select a part to view location maps and bin details.</p>
+        </div>
+
+        <!-- Locations List Container -->
+        <div class="space-y-2">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+            <i data-lucide="map-pin" class="w-3.5 h-3.5 text-emerald-400"></i> Stored Locations & Status
+          </span>
+          <div id="locationsListContainer" class="space-y-2"></div>
+        </div>
+
+      </div>
+    </aside>
+
+    <!-- Right Workspace: Interactive Map -->
+    <main class="flex-1 bg-slate-950 flex flex-col relative overflow-hidden">
+      
+      <!-- Top Building Switcher -->
+      <div class="absolute top-4 left-4 z-10 flex items-center gap-3">
+        <div class="bg-slate-900/95 border border-slate-700 rounded-lg p-1.5 flex items-center gap-2 shadow-xl backdrop-blur">
+          <span class="text-xs font-bold uppercase text-slate-400 pl-2 flex items-center gap-1">
+            <i data-lucide="building" class="w-3.5 h-3.5 text-sky-400"></i> Building Map:
+          </span>
+          <select id="buildingSelector" class="bg-slate-950 border border-slate-700 rounded px-2.5 py-1 text-xs font-bold text-sky-300 focus:outline-none focus:ring-1 focus:ring-sky-500 font-mono"></select>
+        </div>
+        <div id="instructionBanner" class="bg-slate-900/95 border border-slate-700 rounded-lg px-3.5 py-2 text-xs text-slate-300 flex items-center gap-2 backdrop-blur shadow-xl">
+          <i data-lucide="info" class="w-4 h-4 text-blue-400 shrink-0"></i>
+          <span id="instructionText">Select any part to show physical location pins on the building map.</span>
+        </div>
+      </div>
+
+      <!-- Zoom Controls -->
+      <div class="absolute top-4 right-4 z-10 flex gap-1.5">
+        <button id="zoomIn" class="p-2 bg-slate-900/90 hover:bg-slate-800 border border-slate-700 text-slate-200 rounded-lg shadow-lg">
+          <i data-lucide="plus" class="w-4 h-4"></i>
+        </button>
+        <button id="zoomOut" class="p-2 bg-slate-900/90 hover:bg-slate-800 border border-slate-700 text-slate-200 rounded-lg shadow-lg">
+          <i data-lucide="minus" class="w-4 h-4"></i>
+        </button>
+        <button id="zoomReset" class="px-3 py-2 bg-slate-900/90 hover:bg-slate-800 border border-slate-700 text-xs font-medium text-slate-200 rounded-lg shadow-lg">
+          Reset
+        </button>
+      </div>
+
+      <!-- Floor Plan Canvas Viewport -->
+      <div id="mapViewport" class="flex-1 flex items-center justify-center p-6 overflow-auto">
+        <div id="mapTransformLayer" class="relative inline-block transition-transform duration-200 origin-center">
+          
+          <img 
+            id="floorPlanImage" 
+            src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='650' viewBox='0 0 1000 650'><rect width='1000' height='650' fill='%23080c14'/><path d='M50 0 V650 M200 0 V650 M400 0 V650 M600 0 V650 M800 0 V650' stroke='%231e293b' stroke-dasharray='4'/><path d='M0 100 H1000 M0 300 H1000 M0 500 H1000' stroke='%231e293b' stroke-dasharray='4'/><rect x='80' y='70' width='180' height='100' rx='8' fill='%23131d2e' stroke='%232563eb'/><text x='170' y='125' fill='%2360a5fa' font-size='14' text-anchor='middle' font-weight='bold'>GT PHASE 1 RACK</text><rect x='320' y='70' width='180' height='100' rx='8' fill='%23131d2e' stroke='%232563eb'/><text x='410' y='125' fill='%2360a5fa' font-size='14' text-anchor='middle' font-weight='bold'>GT PHASE 2 RACK</text><rect x='80' y='270' width='180' height='100' rx='8' fill='%23241b10' stroke='%23d97706'/><text x='170' y='325' fill='%23fbbf24' font-size='14' text-anchor='middle' font-weight='bold'>FASTENAL VMI B-01</text><rect x='320' y='270' width='180' height='100' rx='8' fill='%23241b10' stroke='%23d97706'/><text x='410' y='325' fill='%23fbbf24' font-size='14' text-anchor='middle' font-weight='bold'>FASTENAL VMI B-02</text><rect x='580' y='70' width='350' height='300' rx='8' fill='%23131d2e' stroke='%23334155'/><text x='755' y='225' fill='%2394a3b8' font-size='16' text-anchor='middle' font-weight='bold'>GT / TT ASSEMBLY LINE</text><rect x='80' y='470' width='850' height='110' rx='8' fill='%23131d2e' stroke='%23334155'/><text x='505' y='530' fill='%2394a3b8' font-size='16' text-anchor='middle' font-weight='bold'>RECEIVING / BULK STORAGE</text></svg>" 
+            alt="Floor Plan" 
+            class="max-w-none shadow-2xl rounded-lg border border-slate-800 select-none pointer-events-none"
+            style="width: 1000px; height: 650px;"
+          />
+
+          <div id="pinsOverlay" class="absolute inset-0"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Calibration Dropdown Modal -->
+  <div id="calibrateModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden">
+    <div class="bg-slate-900 border border-slate-700 rounded-xl max-w-sm w-full p-5 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2">
+          <i data-lucide="map-pin" class="w-4 h-4 text-sky-400"></i> Calibrate Rack Pin
+        </h3>
+        <button id="closeCalibrateModal" class="text-slate-400 hover:text-slate-200"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <span class="text-slate-400 block mb-1">Target Building:</span>
+          <span id="calibBuildingDisplay" class="font-bold text-sky-400 font-mono"></span>
+        </div>
+        <div>
+          <label class="block font-medium text-slate-300 mb-1">Select Location / Rack Code</label>
+          <select id="calibrateLocationSelect" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-slate-100 focus:ring-2 focus:ring-sky-500 font-mono"></select>
+        </div>
+        <input type="hidden" id="calibX" />
+        <input type="hidden" id="calibY" />
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2 border-t border-slate-800">
+        <button id="cancelCalibBtn" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-medium">Cancel</button>
+        <button id="saveCalibBtn" class="px-3.5 py-2 bg-sky-600 hover:bg-sky-500 text-white rounded-lg text-xs font-semibold">Save Coordinate</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // State Store
+    let buildingMaps = JSON.parse(localStorage.getItem("shopBuildingMaps_gh_final")) || {};
+    let rackCoordinates = JSON.parse(localStorage.getItem("shopRackCoords_gh_final")) || {
+      "Building 1:::GT-PHASE-1": { x: 170, y: 120 },
+      "Building 1:::GT-PHASE-2": { x: 410, y: 120 },
+      "Building 1:::FASTENAL-B1": { x: 170, y: 320 },
+      "Building 1:::FASTENAL-B2": { x: 410, y: 320 },
+      "Building 2:::STAGE-1": { x: 500, y: 300 }
+    };
+
+    // Default Starter Inventory
+    let rawInventory = JSON.parse(localStorage.getItem("shopCachedInventory_gh_final")) || [
+      {
+        "Building": "Building 1",
+        "Supply Type": "Fastenal VMI",
+        "Propell Part #": "1502",
+        "Fastenal Part #": "FAS-019823",
+        "Description": "High-Pressure Hydraulic Fitting JIC 90-Deg",
+        "Location Code": "GT-PHASE-1",
+        "Bin Details": "2-Bin Kanban Rack, Tier 2, Bin 12",
+        "Fastenal Status": "Live on Floor"
+      },
+      {
+        "Building": "Building 1",
+        "Supply Type": "Fastenal VMI",
+        "Propell Part #": "1502",
+        "Fastenal Part #": "FAS-019823",
+        "Description": "High-Pressure Hydraulic Fitting JIC 90-Deg",
+        "Location Code": "GT-PHASE-5",
+        "Bin Details": "Fastenal Setup in Progress",
+        "Fastenal Status": "Working On / Setup"
+      },
+      {
+        "Building": "Building 1",
+        "Supply Type": "Propell Floor Stock",
+        "Propell Part #": "PRP-1042",
+        "Fastenal Part #": "N/A",
+        "Description": "3/8-16 x 1.25 Grade 8 Hex Flange Bolt (Zinc)",
+        "Location Code": "GT-PHASE-1",
+        "Bin Details": "Shelf 2, Bin A-4",
+        "Fastenal Status": "N/A"
+      }
+    ];
+
+    let currentBuilding = "Building 1";
+    let isCalibrating = false;
+    let zoomLevel = 1;
+    let activePartKey = null;
+    let currentFilter = "all";
+    let groupedParts = [];
+    let fuse = null;
+
+    // DOM Elements
+    const searchInput = document.getElementById("searchInput");
+    const clearSearch = document.getElementById("clearSearch");
+    const resultsStrip = document.getElementById("resultsStrip");
+    const partsCount = document.getElementById("partsCount");
+    const pinsOverlay = document.getElementById("pinsOverlay");
+    const floorPlanImage = document.getElementById("floorPlanImage");
+    const mapUpload = document.getElementById("mapUpload");
+    const calibrateBtn = document.getElementById("calibrateBtn");
+    const calibrateLabel = document.getElementById("calibrateLabel");
+    const instructionText = document.getElementById("instructionText");
+    const mapTransformLayer = document.getElementById("mapTransformLayer");
+    const calibrateModal = document.getElementById("calibrateModal");
+    const buildingSelector = document.getElementById("buildingSelector");
+    const syncStatusText = document.getElementById("syncStatusText");
+    const syncDot = document.getElementById("syncDot");
+
+    // 1. AUTO-LOAD INVENTORY FROM GITHUB REPO (inventory.json)
+    async function loadInventoryData() {
+      syncStatusText.textContent = "Updating...";
+      syncDot.className = "w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping";
+
+      try {
+        const res = await fetch("./inventory.json", { cache: "no-cache" });
+        if (!res.ok) throw new Error("inventory.json not found yet");
+
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) {
+          rawInventory = data;
+          localStorage.setItem("shopCachedInventory_gh_final", JSON.stringify(rawInventory));
+          processInventory(rawInventory);
+          syncStatusText.textContent = `Live (${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})})`;
+          syncDot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500";
+          return;
+        }
+      } catch (err) {
+        // Fallback gracefully to cache/starter data
+        processInventory(rawInventory);
+        syncStatusText.textContent = "Live (Cached)";
+        syncDot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500/70";
+      }
+    }
+
+    // Auto-refresh every 3 minutes silently
+    setInterval(loadInventoryData, 3 * 60 * 1000);
+    document.getElementById("manualSyncBtn").addEventListener("click", loadInventoryData);
+
+    // 2. Multi-Column Header Resolver
+    function findVal(row, names) {
+      const keys = Object.keys(row);
+      for (const name of names) {
+        const key = keys.find(k => k.trim().toLowerCase() === name.toLowerCase());
+        if (key && row[key] !== undefined && row[key] !== null) return String(row[key]).trim();
+      }
+      return "";
+    }
+
+    // 3. Process & Group Parts by Unique Number
+    function processInventory(rows) {
+      const map = new Map();
+      const buildingsSet = new Set();
+
+      rows.forEach(row => {
+        const building = findVal(row, ["Building", "Building Name", "Facility", "Plant", "Bldg"]) || "Building 1";
+        const propellNo = findVal(row, ["Propell Part #", "Propell Part Number", "Propell #", "Propell Part", "Part Number", "Part No", "Part#"]).toUpperCase();
+        const fastenalNo = findVal(row, ["Fastenal Part #", "Fastenal Part Number", "Fastenal #", "Fastenal SKU", "Fastenal Part"]).toUpperCase();
+        const desc = findVal(row, ["Description", "Part Description", "Desc", "Name"]);
+        const supplyType = findVal(row, ["Supply Type", "Supplier", "Type"]) || (fastenalNo && fastenalNo !== "N/A" ? "Fastenal VMI" : "Propell Floor Stock");
+        const status = findVal(row, ["Fastenal Status", "Status", "VMI Status", "Availability"]) || "Live on Floor";
+        const locCode = findVal(row, ["Location Code", "Location", "Rack ID", "Rack", "Loc"]).toUpperCase();
+        const bin = findVal(row, ["Bin Details", "Bin", "Shelf", "Shelf / Bin", "Position"]);
+
+        const uniqueKey = propellNo || fastenalNo;
+        if (!uniqueKey) return;
+
+        buildingsSet.add(building);
+
+        if (!map.has(uniqueKey)) {
+          map.set(uniqueKey, {
+            key: uniqueKey,
+            propellNo: propellNo || "N/A",
+            fastenalNo: fastenalNo || "N/A",
+            description: desc || "No description provided",
+            supplyType: supplyType,
+            locations: []
+          });
+        }
+
+        const partObj = map.get(uniqueKey);
+        if (desc && (!partObj.description || partObj.description === "No description provided")) partObj.description = desc;
+        if (supplyType) partObj.supplyType = supplyType;
+
+        if (locCode) {
+          partObj.locations.push({
+            building: building,
+            locationCode: locCode,
+            binDetails: bin || "Standard Bin / Staging",
+            status: status
+          });
+        }
+      });
+
+      groupedParts = Array.from(map.values());
+      fuse = new Fuse(groupedParts, {
+        keys: ["propellNo", "fastenalNo", "description", "locations.building", "locations.locationCode", "locations.binDetails"],
+        threshold: 0.35
+      });
+
+      updateBuildingDropdown(Array.from(buildingsSet));
+      renderQuickResults(getFilteredList());
+    }
+
+    function updateBuildingDropdown(buildingsList) {
+      if (buildingsList.length === 0) buildingsList = ["Building 1"];
+      buildingSelector.innerHTML = "";
+      buildingsList.forEach(b => {
+        const opt = document.createElement("option");
+        opt.value = b;
+        opt.textContent = b;
+        buildingSelector.appendChild(opt);
+      });
+
+      if (!buildingsList.includes(currentBuilding)) currentBuilding = buildingsList[0];
+      buildingSelector.value = currentBuilding;
+      loadBuildingMap(currentBuilding);
+    }
+
+    function loadBuildingMap(bldg) {
+      if (buildingMaps[bldg]) floorPlanImage.src = buildingMaps[bldg];
+    }
+
+    buildingSelector.addEventListener("change", (e) => {
+      currentBuilding = e.target.value;
+      loadBuildingMap(currentBuilding);
+      if (activePartKey) {
+        const cur = groupedParts.find(p => p.key === activePartKey);
+        if (cur) selectPart(cur);
+      }
+    });
+
+    // 4. Filtering Logic
+    function getFilteredList() {
+      const searchVal = searchInput.value.trim();
+      let list = searchVal === "" ? groupedParts : fuse.search(searchVal).map(r => r.item);
+
+      if (currentFilter === "propell") {
+        list = list.filter(p => p.supplyType.toLowerCase().includes("propell"));
+      } else if (currentFilter === "fastenal-live") {
+        list = list.filter(p => p.supplyType.toLowerCase().includes("fastenal") && p.locations.some(l => l.status.toLowerCase().includes("live") || l.status.toLowerCase().includes("floor")));
+      } else if (currentFilter === "fastenal-pending") {
+        list = list.filter(p => p.supplyType.toLowerCase().includes("fastenal") && p.locations.some(l => l.status.toLowerCase().includes("working") || l.status.toLowerCase().includes("pending") || l.status.toLowerCase().includes("setup")));
+      }
+      return list;
+    }
+
+    // 5. Results Strip
+    function renderQuickResults(items) {
+      resultsStrip.innerHTML = "";
+      partsCount.textContent = `${items.length} items`;
+
+      if (items.length === 0) {
+        resultsStrip.innerHTML = `<div class="text-xs text-slate-500 text-center py-2">No matching parts found</div>`;
+        return;
+      }
+
+      items.forEach(part => {
+        const isSelected = part.key === activePartKey;
+        const isFastenal = part.supplyType.toLowerCase().includes("fastenal");
+        const bldgs = Array.from(new Set(part.locations.map(l => l.building))).join(", ");
+
+        const btn = document.createElement("div");
+        btn.className = `p-2 rounded-md border cursor-pointer flex items-center justify-between text-xs transition ${
+          isSelected ? "bg-blue-500/20 border-blue-500 text-blue-300 font-bold" : "bg-slate-900 border-slate-800 text-slate-300 hover:border-slate-600"
+        }`;
+        
+        btn.innerHTML = `
+          <div class="truncate mr-2">
+            <span class="font-mono ${isFastenal ? 'text-amber-400' : 'text-blue-400'} font-bold">
+              ${part.propellNo !== "N/A" ? part.propellNo : part.fastenalNo}
+            </span>
+            ${part.fastenalNo !== "N/A" && part.propellNo !== "N/A" ? `<span class="text-slate-500 font-mono text-[10px]"> (FAS: ${part.fastenalNo})</span>` : ''}
+            <span class="text-slate-400 font-normal ml-1 truncate block text-[11px]">${part.description}</span>
+          </div>
+          <div class="flex flex-col items-end shrink-0 gap-1">
+            <span class="text-[9px] px-1.5 py-0.2 rounded font-semibold ${
+              !isFastenal ? 'bg-blue-950 text-blue-300 border border-blue-800' : 'bg-amber-950 text-amber-300 border border-amber-800'
+            }">
+              ${!isFastenal ? 'Propell' : 'Fastenal VMI'}
+            </span>
+            <span class="text-[10px] text-sky-400 font-mono">${bldgs || 'Main'}</span>
+          </div>
+        `;
+        btn.addEventListener("click", () => selectPart(part));
+        resultsStrip.appendChild(btn);
+      });
+    }
+
+    // 6. Select Part & Render Mixed Location Statuses
+    function selectPart(part) {
+      activePartKey = part.key;
+      renderQuickResults(getFilteredList());
+      pinsOverlay.innerHTML = "";
+
+      const isFastenal = part.supplyType.toLowerCase().includes("fastenal");
+
+      if (part.locations.length > 0 && !part.locations.some(l => l.building === currentBuilding)) {
+        currentBuilding = part.locations[0].building;
+        buildingSelector.value = currentBuilding;
+        loadBuildingMap(currentBuilding);
+      }
+
+      const supplyBadge = document.getElementById("supplyBadge");
+      supplyBadge.textContent = part.supplyType;
+      supplyBadge.className = isFastenal 
+        ? "text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded border bg-amber-950/60 text-amber-300 border-amber-500/40"
+        : "text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded border bg-blue-950/60 text-blue-300 border-blue-500/40";
+
+      document.getElementById("detailPropellPart").textContent = part.propellNo;
+      document.getElementById("detailFastenalPart").textContent = part.fastenalNo;
+      document.getElementById("detailDescription").textContent = part.description;
+      document.getElementById("detailLocationsCount").textContent = `${part.locations.length} Location(s)`;
+
+      const locContainer = document.getElementById("locationsListContainer");
+      locContainer.innerHTML = "";
+
+      part.locations.forEach((loc, index) => {
+        const pinNumber = index + 1;
+        const coordKey = `${loc.building}:::${loc.locationCode}`;
+        const coords = rackCoordinates[coordKey];
+        const isMapped = !!coords;
+        const isCurrentBuilding = loc.building === currentBuilding;
+        const isLocPending = loc.status.toLowerCase().includes("working") || 
+                             loc.status.toLowerCase().includes("pending") || 
+                             loc.status.toLowerCase().includes("setup");
+
+        const card = document.createElement("div");
+        card.className = `p-3 rounded-lg border text-xs cursor-pointer transition ${
+          isLocPending ? 'bg-amber-950/20 border-amber-500/30' : 
+          isCurrentBuilding ? 'bg-slate-950 border-slate-700 hover:border-blue-500' : 'bg-slate-950/50 border-slate-800 opacity-75 hover:opacity-100'
+        }`;
+        
+        card.innerHTML = `
+          <div class="flex items-start justify-between mb-1.5">
+            <div class="flex items-center gap-2">
+              <span class="w-5 h-5 rounded-full ${isLocPending ? 'bg-amber-500/30 text-amber-300 border border-amber-500/50' : isFastenal ? 'bg-amber-500 text-slate-950' : 'bg-blue-500 text-slate-950'} font-bold text-xs flex items-center justify-center font-mono">
+                ${pinNumber}
+              </span>
+              <span class="font-mono font-bold text-sm text-slate-100">${loc.locationCode}</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="text-[10px] px-2 py-0.5 rounded font-bold font-mono ${isCurrentBuilding ? 'bg-sky-950 text-sky-300 border border-sky-600' : 'bg-slate-800 text-slate-400'}">
+                ${loc.building}
+              </span>
+              <span class="text-[10px] px-2 py-0.5 rounded font-bold ${
+                isLocPending ? 'bg-amber-900/60 text-amber-300 border border-amber-500/50' : 'bg-emerald-950 text-emerald-300 border border-emerald-500/40'
+              }">
+                ${isLocPending ? 'Pending Fastenal' : 'Live on Floor'}
+              </span>
+            </div>
+          </div>
+          <div class="bg-slate-900/90 p-2 rounded border border-slate-800 space-y-1">
+            <div class="flex items-center justify-between">
+              <span class="text-slate-500 text-[11px] font-medium">Bin / Shelf:</span>
+              <span class="font-mono font-bold ${isLocPending ? 'text-amber-400' : isFastenal ? 'text-amber-300' : 'text-blue-300'} text-[12px]">${loc.binDetails}</span>
+            </div>
+          </div>
+          ${!isCurrentBuilding ? `<span class="text-[10px] text-sky-400 mt-1 block font-semibold">Click to switch map to ${loc.building}</span>` : ''}
+        `;
+
+        card.addEventListener("click", () => {
+          if (currentBuilding !== loc.building) {
+            currentBuilding = loc.building;
+            buildingSelector.value = currentBuilding;
+            loadBuildingMap(currentBuilding);
+            selectPart(part);
+          }
+        });
+
+        locContainer.appendChild(card);
+
+        // Render Pin on Map
+        if (isCurrentBuilding && isMapped) {
+          const pinColor = isLocPending ? '#f59e0b' : isFastenal ? '#f59e0b' : '#3b82f6';
+          const pin = document.createElement("div");
+          pin.className = "absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center group pointer-events-auto cursor-pointer";
+          pin.style.left = `${coords.x}px`;
+          pin.style.top = `${coords.y}px`;
+
+          pin.innerHTML = `
+            <div class="absolute w-14 h-14 rounded-full pin-pulse" style="background-color: ${pinColor}; ${isLocPending ? 'opacity: 0.4;' : ''}"></div>
+            <div class="relative w-8 h-8 rounded-full border-2 border-slate-950 shadow-2xl flex items-center justify-center text-slate-950 font-bold text-xs font-mono" style="background-color: ${pinColor};">
+              ${pinNumber}
+            </div>
+            <div class="mt-1 px-2.5 py-1 bg-slate-900/95 border border-slate-700 rounded shadow-2xl text-center whitespace-nowrap z-30">
+              <span class="text-[11px] font-bold block font-mono" style="color: ${pinColor};">${loc.locationCode}</span>
+              <span class="text-[10px] text-slate-200 block font-semibold">${loc.binDetails}</span>
+            </div>
+          `;
+          pinsOverlay.appendChild(pin);
+        }
+      });
+      lucide.createIcons();
+    }
+
+    // 7. Filters
+    const filterButtons = {
+      all: document.getElementById("filterAll"),
+      propell: document.getElementById("filterPropell"),
+      "fastenal-live": document.getElementById("filterFastenalLive"),
+      "fastenal-pending": document.getElementById("filterFastenalPending")
+    };
+
+    Object.keys(filterButtons).forEach(key => {
+      filterButtons[key].addEventListener("click", () => {
+        currentFilter = key;
+        Object.values(filterButtons).forEach(btn => btn.className = "filter-btn flex-1 py-1 rounded bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-750");
+        filterButtons[key].className = "filter-btn active flex-1 py-1 rounded bg-blue-600 text-white font-semibold border border-blue-500";
+        const filtered = getFilteredList();
+        renderQuickResults(filtered);
+        if (filtered.length > 0) selectPart(filtered[0]);
+      });
+    });
+
+    // 8. Search Input
+    searchInput.addEventListener("input", (e) => {
+      const val = e.target.value.trim();
+      clearSearch.classList.toggle("hidden", val.length === 0);
+      const filtered = getFilteredList();
+      renderQuickResults(filtered);
+      if (filtered.length > 0) selectPart(filtered[0]);
+      else pinsOverlay.innerHTML = "";
+    });
+
+    clearSearch.addEventListener("click", () => {
+      searchInput.value = "";
+      clearSearch.classList.add("hidden");
+      const list = getFilteredList();
+      renderQuickResults(list);
+      if (list.length > 0) selectPart(list[0]);
+    });
+
+    // 9. Map Upload
+    mapUpload.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const imgData = event.target.result;
+          floorPlanImage.src = imgData;
+          buildingMaps[currentBuilding] = imgData;
+          localStorage.setItem("shopBuildingMaps_gh_final", JSON.stringify(buildingMaps));
+          alert(`Floor plan map saved for [${currentBuilding}]!`);
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // 10. Calibration
+    calibrateBtn.addEventListener("click", () => {
+      isCalibrating = !isCalibrating;
+      pinsOverlay.classList.toggle("map-active-calibrate", isCalibrating);
+      calibrateBtn.className = `flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition ${
+        isCalibrating ? 'bg-sky-600 border-sky-500 text-white' : 'bg-slate-800 border-slate-700 text-slate-200'
+      }`;
+      calibrateLabel.textContent = isCalibrating ? "Exit Calibration" : "Calibrate Pins";
+      instructionText.textContent = isCalibrating 
+        ? `CALIBRATING [${currentBuilding}]: Click anywhere on this building map to link a location pin.` 
+        : "Select any part on the left to see physical location pins on the building map.";
+    });
+
+    pinsOverlay.addEventListener("click", (e) => {
+      if (!isCalibrating) return;
+      const rect = pinsOverlay.getBoundingClientRect();
+      const clickX = Math.round((e.clientX - rect.left) / zoomLevel);
+      const clickY = Math.round((e.clientY - rect.top) / zoomLevel);
+
+      document.getElementById("calibX").value = clickX;
+      document.getElementById("calibY").value = clickY;
+      document.getElementById("calibBuildingDisplay").textContent = currentBuilding;
+
+      const select = document.getElementById("calibrateLocationSelect");
+      select.innerHTML = "";
+      const bldgCodes = new Set();
+      
+      groupedParts.forEach(p => {
+        p.locations.filter(l => l.building === currentBuilding).forEach(l => bldgCodes.add(l.locationCode));
+      });
+
+      Array.from(bldgCodes).sort().forEach(code => {
+        const isMapped = !!rackCoordinates[`${currentBuilding}:::${code}`];
+        const opt = document.createElement("option");
+        opt.value = code;
+        opt.textContent = `${code} ${isMapped ? '(Mapped)' : '(Unmapped)'}`;
+        select.appendChild(opt);
+      });
+
+      calibrateModal.classList.remove("hidden");
+    });
+
+    document.getElementById("saveCalibBtn").addEventListener("click", () => {
+      const selectedCode = document.getElementById("calibrateLocationSelect").value;
+      const x = parseFloat(document.getElementById("calibX").value);
+      const y = parseFloat(document.getElementById("calibY").value);
+
+      if (!selectedCode) return;
+
+      const key = `${currentBuilding}:::${selectedCode}`;
+      rackCoordinates[key] = { x, y };
+      localStorage.setItem("shopRackCoords_gh_final", JSON.stringify(rackCoordinates));
+      calibrateModal.classList.add("hidden");
+
+      if (activePartKey) {
+        const cur = groupedParts.find(p => p.key === activePartKey);
+        if (cur) selectPart(cur);
+      }
+    });
+
+    document.getElementById("closeCalibrateModal").addEventListener("click", () => calibrateModal.classList.add("hidden"));
+    document.getElementById("cancelCalibBtn").addEventListener("click", () => calibrateModal.classList.add("hidden"));
+
+    // 11. Zoom Controls
+    document.getElementById("zoomIn").addEventListener("click", () => {
+      zoomLevel = Math.min(zoomLevel + 0.2, 2.5);
+      mapTransformLayer.style.transform = `scale(${zoomLevel})`;
+    });
+
+    document.getElementById("zoomOut").addEventListener("click", () => {
+      zoomLevel = Math.max(zoomLevel - 0.2, 0.6);
+      mapTransformLayer.style.transform = `scale(${zoomLevel})`;
+    });
+
+    document.getElementById("zoomReset").addEventListener("click", () => {
+      zoomLevel = 1;
+      mapTransformLayer.style.transform = "scale(1)";
+    });
+
+    // 12. Backup Configuration
+    document.getElementById("exportConfigBtn").addEventListener("click", () => {
+      const config = { buildingMaps, rackCoordinates, rawInventory };
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(config, null, 2));
+      const a = document.createElement('a');
+      a.href = dataStr;
+      a.download = "shop_floor_locator_backup.json";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    });
+
+    // Startup
+    loadInventoryData();
+  </script>
+</body>
+</html>
