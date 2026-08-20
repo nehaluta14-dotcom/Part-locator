@@ -5,9 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Shop Floor Part & Fastenal VMI Visual Locator</title>
   
-  <!-- CDN Scripts for Tailwind, Icons, and Fuzzy Search -->
+  <!-- CDN Scripts for Tailwind, Icons, SheetJS & Fuse.js -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
 
   <style>
@@ -29,7 +30,7 @@
 </head>
 <body class="bg-slate-950 text-slate-100 flex flex-col h-screen overflow-hidden font-sans">
 
-  <!-- Top Navigation Header -->
+  <!-- Top Header -->
   <header class="bg-slate-900 border-b border-slate-800 px-6 py-3 flex items-center justify-between shadow-md z-20">
     <div class="flex items-center gap-3">
       <div class="p-2 bg-blue-500/10 border border-blue-500/30 rounded-lg text-blue-400">
@@ -39,7 +40,7 @@
         <h1 class="text-base font-bold tracking-wide uppercase text-slate-100 flex items-center gap-2">
           Shop Floor Part & Fastenal VMI Locator
         </h1>
-        <p class="text-xs text-slate-400">24/7 Live Auto-Sync Inventory & Map System</p>
+        <p class="text-xs text-slate-400">Multi-Building Floor Plan & 2-Bin Management</p>
       </div>
     </div>
 
@@ -49,19 +50,19 @@
       <div class="flex items-center gap-2 px-3 py-1.5 bg-slate-950 border border-slate-800 rounded-lg text-xs">
         <span id="syncDot" class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
         <span id="syncStatusText" class="text-slate-300 font-mono text-[11px]">Connecting...</span>
-        <button id="manualSyncBtn" class="ml-1 text-slate-400 hover:text-slate-200" title="Refresh Latest SharePoint Data">
+        <button id="manualSyncBtn" class="ml-1 text-slate-400 hover:text-slate-200" title="Refresh Latest Inventory">
           <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
         </button>
       </div>
 
-      <!-- Update Map Button -->
+      <!-- Update Map -->
       <label class="flex items-center gap-1.5 cursor-pointer bg-slate-800 hover:bg-slate-750 px-3 py-1.5 rounded-lg border border-slate-700 text-xs font-medium text-slate-200 transition">
         <i data-lucide="image" class="w-4 h-4 text-amber-400"></i>
         <span>Update Map</span>
         <input type="file" id="mapUpload" accept="image/*" class="hidden" />
       </label>
 
-      <!-- Calibrate Pins Button -->
+      <!-- Calibrate Pins -->
       <button id="calibrateBtn" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-750 border border-slate-700 text-xs font-medium text-slate-200 transition">
         <i data-lucide="crosshair" class="w-4 h-4 text-sky-400"></i>
         <span id="calibrateLabel">Calibrate Pins</span>
@@ -110,7 +111,7 @@
         </div>
       </div>
 
-      <!-- Search Results Strip -->
+      <!-- Quick Results Strip -->
       <div id="resultsStrip" class="max-h-40 overflow-y-auto p-2.5 border-b border-slate-800 space-y-1.5 bg-slate-950/60"></div>
 
       <!-- Master Part & Location Details Panel -->
@@ -228,9 +229,8 @@
   </div>
 
   <script>
-    // State Store
-    let buildingMaps = JSON.parse(localStorage.getItem("shopBuildingMaps_gh_final")) || {};
-    let rackCoordinates = JSON.parse(localStorage.getItem("shopRackCoords_gh_final")) || {
+    let buildingMaps = JSON.parse(localStorage.getItem("shopBuildingMaps_vFinal")) || {};
+    let rackCoordinates = JSON.parse(localStorage.getItem("shopRackCoords_vFinal")) || {
       "Building 1:::GT-PHASE-1": { x: 170, y: 120 },
       "Building 1:::GT-PHASE-2": { x: 410, y: 120 },
       "Building 1:::FASTENAL-B1": { x: 170, y: 320 },
@@ -238,8 +238,8 @@
       "Building 2:::STAGE-1": { x: 500, y: 300 }
     };
 
-    // Default Starter Inventory
-    let rawInventory = JSON.parse(localStorage.getItem("shopCachedInventory_gh_final")) || [
+    // Starter Inventory
+    let rawInventory = JSON.parse(localStorage.getItem("shopCachedInventory_vFinal")) || [
       {
         "Building": "Building 1",
         "Supply Type": "Fastenal VMI",
@@ -259,16 +259,6 @@
         "Location Code": "GT-PHASE-5",
         "Bin Details": "Fastenal Setup in Progress",
         "Fastenal Status": "Working On / Setup"
-      },
-      {
-        "Building": "Building 1",
-        "Supply Type": "Propell Floor Stock",
-        "Propell Part #": "PRP-1042",
-        "Fastenal Part #": "N/A",
-        "Description": "3/8-16 x 1.25 Grade 8 Hex Flange Bolt (Zinc)",
-        "Location Code": "GT-PHASE-1",
-        "Bin Details": "Shelf 2, Bin A-4",
-        "Fastenal Status": "N/A"
       }
     ];
 
@@ -297,33 +287,45 @@
     const syncStatusText = document.getElementById("syncStatusText");
     const syncDot = document.getElementById("syncDot");
 
-    // 1. AUTO-LOAD INVENTORY FROM GITHUB REPO (inventory.json)
+    // 1. AUTO-LOAD INVENTORY FROM REPO (Checks ./inventory.xlsx or ./inventory.csv)
     async function loadInventoryData() {
-      syncStatusText.textContent = "Updating...";
+      syncStatusText.textContent = "Checking...";
       syncDot.className = "w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping";
 
-      try {
-        const res = await fetch("./inventory.json", { cache: "no-cache" });
-        if (!res.ok) throw new Error("inventory.json not found yet");
+      const targets = ["./inventory.xlsx", "./inventory.csv", "./inventory.json"];
+      let fetched = null;
 
-        const data = await res.json();
-        if (Array.isArray(data) && data.length > 0) {
-          rawInventory = data;
-          localStorage.setItem("shopCachedInventory_gh_final", JSON.stringify(rawInventory));
-          processInventory(rawInventory);
-          syncStatusText.textContent = `Live (${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})})`;
-          syncDot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500";
-          return;
-        }
-      } catch (err) {
-        // Fallback gracefully to cache/starter data
+      for (const target of targets) {
+        try {
+          const res = await fetch(target, { cache: "no-cache" });
+          if (!res.ok) continue;
+
+          if (target.endsWith(".json")) {
+            fetched = await res.json();
+          } else {
+            const arrayBuffer = await res.arrayBuffer();
+            const workbook = XLSX.read(new Uint8Array(arrayBuffer), { type: "array" });
+            const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+            fetched = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+          }
+
+          if (fetched && fetched.length > 0) break;
+        } catch (e) {}
+      }
+
+      if (fetched && Array.isArray(fetched) && fetched.length > 0) {
+        rawInventory = fetched;
+        localStorage.setItem("shopCachedInventory_vFinal", JSON.stringify(rawInventory));
+        processInventory(rawInventory);
+        syncStatusText.textContent = `Live (${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})})`;
+        syncDot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500";
+      } else {
         processInventory(rawInventory);
         syncStatusText.textContent = "Live (Cached)";
         syncDot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500/70";
       }
     }
 
-    // Auto-refresh every 3 minutes silently
     setInterval(loadInventoryData, 3 * 60 * 1000);
     document.getElementById("manualSyncBtn").addEventListener("click", loadInventoryData);
 
@@ -337,7 +339,7 @@
       return "";
     }
 
-    // 3. Process & Group Parts by Unique Number
+    // 3. Process & Group Parts
     function processInventory(rows) {
       const map = new Map();
       const buildingsSet = new Set();
@@ -477,7 +479,7 @@
       });
     }
 
-    // 6. Select Part & Render Mixed Location Statuses
+    // 6. Select Part & Show Mixed Location Statuses
     function selectPart(part) {
       activePartKey = part.key;
       renderQuickResults(getFilteredList());
@@ -584,7 +586,7 @@
       lucide.createIcons();
     }
 
-    // 7. Filters
+    // 7. Filter Buttons
     const filterButtons = {
       all: document.getElementById("filterAll"),
       propell: document.getElementById("filterPropell"),
@@ -630,7 +632,7 @@
           const imgData = event.target.result;
           floorPlanImage.src = imgData;
           buildingMaps[currentBuilding] = imgData;
-          localStorage.setItem("shopBuildingMaps_gh_final", JSON.stringify(buildingMaps));
+          localStorage.setItem("shopBuildingMaps_vFinal", JSON.stringify(buildingMaps));
           alert(`Floor plan map saved for [${currentBuilding}]!`);
         };
         reader.readAsDataURL(file);
@@ -688,7 +690,7 @@
 
       const key = `${currentBuilding}:::${selectedCode}`;
       rackCoordinates[key] = { x, y };
-      localStorage.setItem("shopRackCoords_gh_final", JSON.stringify(rackCoordinates));
+      localStorage.setItem("shopRackCoords_vFinal", JSON.stringify(rackCoordinates));
       calibrateModal.classList.add("hidden");
 
       if (activePartKey) {
