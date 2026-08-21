@@ -90,7 +90,7 @@
         <h1 class="text-sm font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
           Voltagrid <span class="font-medium text-slate-400 dark:text-slate-600">|</span> <span class="font-semibold text-slate-700 dark:text-slate-200">Floor Stock and VMI (Fastenal) Parts Locator</span>
         </h1>
-        <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Interactive Floor Plan & Multi-Building Material Flow</p>
+        <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Multi-Building Real-Time Map & Material Flow System</p>
       </div>
     </div>
 
@@ -159,7 +159,7 @@
             </button>
           </div>
           <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1.5 pl-1">
-            Type below to instantly filter table & map pins.
+            Type below to instantly filter table & all facility maps.
           </p>
         </div>
 
@@ -179,9 +179,9 @@
             <i data-lucide="search" class="w-6 h-6"></i>
           </div>
           <div>
-            <h3 class="text-xs font-bold text-slate-700 dark:text-slate-200">Instant Part Locator</h3>
+            <h3 class="text-xs font-bold text-slate-700 dark:text-slate-200">Multi-Building Part Locator</h3>
             <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 max-w-[240px]">
-              Type a part number or description above to see live results in the top table and map.
+              Type a part number or description above to see live results across all facility maps simultaneously.
             </p>
           </div>
         </div>
@@ -210,24 +210,21 @@
       </div>
     </aside>
 
-    <!-- Right Workspace: Top Table & Floor Plan Canvas -->
+    <!-- Right Workspace: Top Table & Multi-Map Canvas Grid -->
     <main class="flex-1 bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-2xl flex flex-col overflow-hidden shadow-sm transition-colors">
       
-      <!-- Top Floor Selection Ribbon -->
+      <!-- Top Info Banner -->
       <div class="p-3 bg-slate-200/70 dark:bg-slate-900 border-b border-slate-300 dark:border-slate-800 flex items-center justify-between shadow-2xs shrink-0">
         <div class="flex items-center gap-3">
-          <div class="flex items-center gap-2">
-            <span class="text-xs font-bold uppercase text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
-              <i data-lucide="building" class="w-3.5 h-3.5 text-voltablue-600 dark:text-voltacyan-400"></i> Active Building:
-            </span>
-            <select id="buildingSelector" class="bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-1 text-xs font-bold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-voltablue-500/20 font-mono"></select>
-          </div>
+          <span class="text-xs font-bold uppercase text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
+            <i data-lucide="map-pin" class="w-3.5 h-3.5 text-voltablue-600 dark:text-voltacyan-400"></i> Active Storage Overview:
+          </span>
           <span id="instructionBanner" class="text-xs text-slate-600 dark:text-slate-400 font-medium border-l border-slate-300 dark:border-slate-700 pl-3">
-            Type part number or description in search to display storage locations.
+            Type part number or description in search to display storage locations across all buildings.
           </span>
         </div>
 
-        <!-- Zoom Controls -->
+        <!-- Global Map Scale Controls -->
         <div class="flex items-center gap-1 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-750 p-1 rounded-xl shadow-2xs">
           <button id="zoomIn" class="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg transition" title="Zoom In">
             <i data-lucide="plus" class="w-3.5 h-3.5"></i>
@@ -241,8 +238,8 @@
         </div>
       </div>
 
-      <!-- Top Results Data Table (Instant auto-populated) -->
-      <div id="tableSection" class="bg-slate-50 dark:bg-slate-900/90 border-b border-slate-300 dark:border-slate-800 max-h-60 overflow-y-auto shrink-0">
+      <!-- Top Results Data Table -->
+      <div id="tableSection" class="bg-slate-50 dark:bg-slate-900/90 border-b border-slate-300 dark:border-slate-800 max-h-56 overflow-y-auto shrink-0">
         <table class="w-full text-left border-collapse text-xs">
           <thead class="bg-slate-200/80 dark:bg-slate-950 border-b border-slate-300 dark:border-slate-800 sticky top-0 z-10">
             <tr>
@@ -266,20 +263,10 @@
         </table>
       </div>
 
-      <!-- Floor Plan Canvas Viewport -->
-      <div id="mapViewport" class="flex-1 bg-slate-200/60 dark:bg-slate-950 flex items-center justify-center p-6 overflow-auto relative">
-        <div id="mapTransformLayer" class="relative inline-block transition-transform duration-200 origin-center">
-          
-          <img 
-            id="floorPlanImage" 
-            src="" 
-            alt="Floor Plan" 
-            class="max-w-none shadow-md rounded-xl border border-slate-300 dark:border-slate-800 select-none pointer-events-none"
-            style="width: 1000px; height: 650px;"
-          />
-
-          <!-- Location Pins Overlay -->
-          <div id="pinsOverlay" class="absolute inset-0"></div>
+      <!-- Multi-Building Floor Plans Gallery Container (Displays ALL active facility maps simultaneously) -->
+      <div id="allMapsGallery" class="flex-1 bg-slate-200/60 dark:bg-slate-950 p-6 overflow-y-auto space-y-6">
+        <div class="flex flex-col items-center justify-center h-full text-slate-400 dark:text-slate-600 text-xs">
+          Search for a part on the left to view all facility floor plans.
         </div>
       </div>
     </main>
@@ -346,6 +333,7 @@
         </div>
         <input type="hidden" id="calibX" />
         <input type="hidden" id="calibY" />
+        <input type="hidden" id="calibBldgTarget" />
       </div>
 
       <div class="flex justify-end gap-2 pt-2 border-t border-slate-200 dark:border-slate-800">
@@ -364,13 +352,12 @@
     let buildingMaps = JSON.parse(localStorage.getItem("voltagrid_building_maps")) || {};
     let rackCoordinates = JSON.parse(localStorage.getItem("voltagrid_rack_coords")) || {};
     let rawInventory = JSON.parse(localStorage.getItem("voltagrid_cached_inventory")) || [];
-    let currentBuilding = "Building 1";
     let isCalibrating = false;
     let zoomLevel = 1;
     let activePartKey = null;
     let currentFilter = "all";
     let groupedParts = [];
-    let allKnownBuildings = new Set(["Building 1"]);
+    let allKnownBuildings = new Set();
 
     // DOM References
     const searchInput = document.getElementById("searchInput");
@@ -378,20 +365,17 @@
     const emptySearchPrompt = document.getElementById("emptySearchPrompt");
     const itemsContainer = document.getElementById("itemsContainer");
     const partsCount = document.getElementById("partsCount");
-    const pinsOverlay = document.getElementById("pinsOverlay");
-    const floorPlanImage = document.getElementById("floorPlanImage");
     const calibrateBtn = document.getElementById("calibrateBtn");
     const calibrateLabel = document.getElementById("calibrateLabel");
     const instructionBanner = document.getElementById("instructionBanner");
-    const mapTransformLayer = document.getElementById("mapTransformLayer");
     const calibrateModal = document.getElementById("calibrateModal");
-    const buildingSelector = document.getElementById("buildingSelector");
     const syncStatusText = document.getElementById("syncStatusText");
     const syncDot = document.getElementById("syncDot");
     const themeToggleBtn = document.getElementById("themeToggleBtn");
     const themeIcon = document.getElementById("themeIcon");
     const locationsTableBody = document.getElementById("locationsTableBody");
     const selectedPartSummaryCard = document.getElementById("selectedPartSummaryCard");
+    const allMapsGallery = document.getElementById("allMapsGallery");
     const mapManagerModal = document.getElementById("mapManagerModal");
     const mapsListContainer = document.getElementById("mapsListContainer");
     const newBuildingNameInput = document.getElementById("newBuildingNameInput");
@@ -408,7 +392,6 @@
         themeIcon.setAttribute("data-lucide", "moon");
       }
       lucide.createIcons();
-      loadBuildingMap(currentBuilding);
     }
 
     themeToggleBtn.addEventListener("click", () => {
@@ -416,10 +399,13 @@
       localStorage.setItem("voltagrid_theme", isDark ? "dark" : "light");
       themeIcon.setAttribute("data-lucide", isDark ? "sun" : "moon");
       lucide.createIcons();
-      loadBuildingMap(currentBuilding);
+      if (activePartKey) {
+        const cur = groupedParts.find(p => p.key === activePartKey);
+        if (cur) renderAllFacilityMaps(cur);
+      }
     });
 
-    // 2. AUTO-LOAD INVENTORY DATA FROM REPO
+    // 2. AUTO-LOAD INVENTORY DATA FROM REPOSITORY
     async function loadInventoryData() {
       syncStatusText.textContent = "Checking...";
       syncDot.className = "w-2 h-2 rounded-full bg-voltacyan-500 animate-ping";
@@ -474,13 +460,13 @@
       return "";
     }
 
-    // 4. Process & Group Inventory
+    // 4. Process Inventory
     function processInventory(rows) {
       const map = new Map();
       allKnownBuildings = new Set(Object.keys(buildingMaps));
 
       rows.forEach(row => {
-        const building = findVal(row, ["Building", "Building Name", "Facility", "Plant", "Bldg"]) || "Building 1";
+        const building = findVal(row, ["Building", "Building Name", "Facility", "Plant", "Bldg"]) || "Main Facility";
         const propellNo = findVal(row, ["Propell Part #", "Propell Part Number", "Propell #", "Propell Part", "Part Number", "Part No", "Part#"]).toUpperCase();
         const fastenalNo = findVal(row, ["Fastenal Part #", "Fastenal Part Number", "Fastenal #", "Fastenal SKU", "Fastenal Part"]).toUpperCase();
         const desc = findVal(row, ["Description", "Part Description", "Desc", "Name"]);
@@ -520,50 +506,15 @@
       });
 
       groupedParts = Array.from(map.values());
-      updateBuildingDropdown(Array.from(allKnownBuildings));
       handleSearchAndUpdate();
     }
 
-    function updateBuildingDropdown(buildingsList) {
-      if (buildingsList.length === 0) buildingsList = ["Building 1"];
-      buildingSelector.innerHTML = "";
-      buildingsList.forEach(b => {
-        const opt = document.createElement("option");
-        opt.value = b;
-        opt.textContent = b;
-        buildingSelector.appendChild(opt);
-      });
-
-      if (!buildingsList.includes(currentBuilding)) currentBuilding = buildingsList[0];
-      buildingSelector.value = currentBuilding;
-      loadBuildingMap(currentBuilding);
-    }
-
-    function loadBuildingMap(bldg) {
-      if (buildingMaps[bldg]) {
-        floorPlanImage.src = buildingMaps[bldg];
-      } else {
-        const isDark = document.documentElement.classList.contains("dark");
-        floorPlanImage.src = isDark ? defaultDarkSvg : defaultLightSvg;
-      }
-    }
-
-    buildingSelector.addEventListener("change", (e) => {
-      currentBuilding = e.target.value;
-      loadBuildingMap(currentBuilding);
-      if (activePartKey) {
-        const cur = groupedParts.find(p => p.key === activePartKey);
-        if (cur) renderPinsForPart(cur);
-      }
-    });
-
-    // 5. ACCURATE EXACT & SUBSTRING SEARCH (Fixes Loose Fuzzy Matches)
+    // 5. Accurate Exact & Substring Search
     function getFilteredList() {
       const q = searchInput.value.trim().toUpperCase();
       if (!q) return [];
 
       let list = groupedParts.filter(p => {
-        // Priority 1: Exact or starts-with match on Part Numbers
         const pNo = p.propellNo.toUpperCase();
         const fNo = p.fastenalNo.toUpperCase();
         const desc = p.description.toUpperCase();
@@ -571,7 +522,6 @@
         return pNo.includes(q) || fNo.includes(q) || desc.includes(q);
       });
 
-      // Sort matches: Exact matches first, then startsWith, then general contains
       list.sort((a, b) => {
         const aExact = a.propellNo === q || a.fastenalNo === q;
         const bExact = b.propellNo === q || b.fastenalNo === q;
@@ -586,7 +536,6 @@
         return 0;
       });
 
-      // Filter pills
       if (currentFilter === "propell") {
         list = list.filter(p => p.supplyType.toLowerCase().includes("propell") || p.supplyType.toLowerCase().includes("stock"));
       } else if (currentFilter === "fastenal-live") {
@@ -597,7 +546,7 @@
       return list;
     }
 
-    // 6. INSTANT SEARCH & AUTO-RENDER
+    // 6. Search & Immediate Render
     function handleSearchAndUpdate() {
       const searchVal = searchInput.value.trim();
       itemsContainer.innerHTML = "";
@@ -607,7 +556,6 @@
         itemsContainer.classList.add("hidden");
         selectedPartSummaryCard.classList.add("hidden");
         partsCount.textContent = "Ready";
-        pinsOverlay.innerHTML = "";
         locationsTableBody.innerHTML = `
           <tr>
             <td colspan="8" class="text-center py-6 text-slate-500 dark:text-slate-400 text-xs">
@@ -615,7 +563,12 @@
             </td>
           </tr>
         `;
-        instructionBanner.textContent = "Type part number or description in search to display storage locations.";
+        allMapsGallery.innerHTML = `
+          <div class="flex flex-col items-center justify-center h-full text-slate-400 dark:text-slate-600 text-xs">
+            Search for a part on the left to view all facility floor plans.
+          </div>
+        `;
+        instructionBanner.textContent = "Type part number or description in search to display storage locations across all buildings.";
         return;
       }
 
@@ -635,7 +588,11 @@
           </tr>
         `;
         selectedPartSummaryCard.classList.add("hidden");
-        pinsOverlay.innerHTML = "";
+        allMapsGallery.innerHTML = `
+          <div class="flex flex-col items-center justify-center h-full text-slate-400 dark:text-slate-600 text-xs">
+            No matching building maps to display.
+          </div>
+        `;
         return;
       }
 
@@ -675,7 +632,7 @@
         itemsContainer.appendChild(btn);
       });
 
-      // Auto-focus the exact or first best match
+      // Auto-focus best match
       if (!activePartKey || !matches.some(p => p.key === activePartKey)) {
         selectPart(matches[0]);
       } else {
@@ -684,7 +641,7 @@
       }
     }
 
-    // 7. Select Part & Instant Multi-Location Render
+    // 7. Select Part & Render ALL Facility Maps Simultaneously
     function selectPart(part) {
       activePartKey = part.key;
 
@@ -702,13 +659,6 @@
       document.getElementById("summaryDescription").textContent = part.description;
       document.getElementById("summaryTotalLocations").textContent = `${part.locations.length} Location(s)`;
 
-      // Auto Switch Building to match if needed
-      if (part.locations.length > 0 && !part.locations.some(l => l.building === currentBuilding)) {
-        currentBuilding = part.locations[0].building;
-        buildingSelector.value = currentBuilding;
-        loadBuildingMap(currentBuilding);
-      }
-
       // Populate Top Results Table
       locationsTableBody.innerHTML = "";
       if (part.locations.length === 0) {
@@ -722,10 +672,9 @@
           const isLocPending = loc.status.toLowerCase().includes("working") || 
                                loc.status.toLowerCase().includes("pending") || 
                                loc.status.toLowerCase().includes("setup");
-          const isCurrentBldg = loc.building === currentBuilding;
 
           const row = document.createElement("tr");
-          row.className = `cursor-pointer transition hover:bg-slate-200/80 dark:hover:bg-slate-800/60 ${isCurrentBldg ? 'bg-voltablue-100/50 dark:bg-voltablue-950/30' : ''}`;
+          row.className = "cursor-pointer transition hover:bg-slate-200/80 dark:hover:bg-slate-800/60";
           
           row.innerHTML = `
             <td class="py-2.5 px-3 font-mono font-bold text-slate-500 dark:text-slate-400">${index + 1}</td>
@@ -733,7 +682,7 @@
             <td class="py-2.5 px-3 font-mono font-bold text-voltacyan-700 dark:text-voltacyan-300">${part.fastenalNo !== 'N/A' ? part.fastenalNo : '—'}</td>
             <td class="py-2.5 px-3 text-slate-700 dark:text-slate-300 max-w-[200px] truncate" title="${part.description}">${part.description}</td>
             <td class="py-2.5 px-3">
-              <span class="px-2 py-0.5 rounded-md font-mono text-[11px] font-bold ${isCurrentBldg ? 'bg-voltablue-200/80 dark:bg-voltablue-900/60 text-voltablue-900 dark:text-voltablue-200' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-400'}">
+              <span class="px-2 py-0.5 rounded-md font-mono text-[11px] font-bold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
                 ${loc.building}
               </span>
             </td>
@@ -750,60 +699,138 @@
             </td>
           `;
 
-          row.addEventListener("click", () => {
-            if (currentBuilding !== loc.building) {
-              currentBuilding = loc.building;
-              buildingSelector.value = currentBuilding;
-              loadBuildingMap(currentBuilding);
-              renderPinsForPart(part);
-            }
-          });
-
           locationsTableBody.appendChild(row);
         });
       }
 
-      renderPinsForPart(part);
-      instructionBanner.textContent = `Showing ${part.locations.length} storage location(s) for [${part.propellNo !== 'N/A' ? part.propellNo : part.fastenalNo}].`;
+      // Render ALL Facility Maps Containing this Part
+      renderAllFacilityMaps(part);
+      instructionBanner.textContent = `Showing all ${part.locations.length} storage location(s) across facilities for [${part.propellNo !== 'N/A' ? part.propellNo : part.fastenalNo}].`;
       lucide.createIcons();
     }
 
-    // 8. Render Location Pins for Selected Part
-    function renderPinsForPart(part) {
-      pinsOverlay.innerHTML = "";
+    // 8. RENDER ALL BUILDING MAPS SIMULTANEOUSLY (No Building Filter Required!)
+    function renderAllFacilityMaps(part) {
+      allMapsGallery.innerHTML = "";
+      const isDark = document.documentElement.classList.contains("dark");
       const isFastenal = part.supplyType.toLowerCase().includes("fastenal");
 
-      part.locations.forEach((loc, index) => {
-        if (loc.building !== currentBuilding) return;
+      // Extract all unique buildings where this part exists
+      const uniqueBuildings = Array.from(new Set(part.locations.map(l => l.building)));
 
-        const pinNumber = index + 1;
-        const coordKey = `${loc.building}:::${loc.locationCode}`;
-        const coords = rackCoordinates[coordKey];
-        if (!coords) return;
-
-        const isLocPending = loc.status.toLowerCase().includes("working") || 
-                             loc.status.toLowerCase().includes("pending") || 
-                             loc.status.toLowerCase().includes("setup");
-
-        const pinColor = isLocPending ? '#f59e0b' : isFastenal ? '#06b6d4' : '#1d4ed8';
-
-        const pin = document.createElement("div");
-        pin.className = "absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center group pointer-events-auto cursor-pointer";
-        pin.style.left = `${coords.x}px`;
-        pin.style.top = `${coords.y}px`;
-
-        pin.innerHTML = `
-          <div class="absolute w-14 h-14 rounded-full pin-pulse" style="background-color: ${pinColor}; ${isLocPending ? 'opacity: 0.3;' : ''}"></div>
-          <div class="relative w-8 h-8 rounded-full border-2 border-white dark:border-slate-900 shadow-md flex items-center justify-center text-white font-bold text-xs font-mono" style="background-color: ${pinColor};">
-            ${pinNumber}
-          </div>
-          <div class="mt-1 px-3 py-1 bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg shadow-md text-center whitespace-nowrap z-30">
-            <span class="text-[11px] font-bold block font-mono" style="color: ${pinColor};">${loc.locationCode}</span>
-            <span class="text-[10px] text-slate-700 dark:text-slate-300 block font-medium">${loc.binDetails}</span>
+      if (uniqueBuildings.length === 0) {
+        allMapsGallery.innerHTML = `
+          <div class="flex flex-col items-center justify-center h-full text-slate-400 dark:text-slate-600 text-xs">
+            No physical map positions assigned.
           </div>
         `;
-        pinsOverlay.appendChild(pin);
+        return;
+      }
+
+      uniqueBuildings.forEach(bldgName => {
+        const bldgLocations = part.locations.filter(l => l.building === bldgName);
+        const mapImgSrc = buildingMaps[bldgName] || (isDark ? defaultDarkSvg : defaultLightSvg);
+
+        const card = document.createElement("div");
+        card.className = "bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-2xl p-4 shadow-sm space-y-3";
+
+        // Map Section Header
+        card.innerHTML = `
+          <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2.5">
+            <div class="flex items-center gap-2">
+              <span class="w-7 h-7 rounded-lg bg-voltablue-100 dark:bg-voltablue-950 text-voltablue-700 dark:text-voltacyan-400 flex items-center justify-center">
+                <i data-lucide="building" class="w-4 h-4"></i>
+              </span>
+              <span class="font-bold text-sm text-slate-900 dark:text-white font-mono">${bldgName}</span>
+              <span class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                ${bldgLocations.length} Location(s)
+              </span>
+            </div>
+          </div>
+
+          <!-- Canvas Container -->
+          <div class="flex justify-center overflow-auto p-2">
+            <div class="relative inline-block transition-transform duration-200 origin-center map-canvas-layer" style="transform: scale(${zoomLevel});">
+              <img 
+                src="${mapImgSrc}" 
+                alt="${bldgName}" 
+                class="max-w-none shadow-md rounded-xl border border-slate-300 dark:border-slate-800 select-none pointer-events-none"
+                style="width: 1000px; height: 650px;"
+              />
+              <div class="absolute inset-0 bldg-pins-overlay" data-bldg="${bldgName}"></div>
+            </div>
+          </div>
+        `;
+
+        allMapsGallery.appendChild(card);
+
+        // Add pins for this specific building
+        const pinsOverlay = card.querySelector(`.bldg-pins-overlay`);
+        bldgLocations.forEach((loc, index) => {
+          const pinNumber = part.locations.indexOf(loc) + 1;
+          const coordKey = `${loc.building}:::${loc.locationCode}`;
+          const coords = rackCoordinates[coordKey];
+          if (!coords) return;
+
+          const isLocPending = loc.status.toLowerCase().includes("working") || 
+                               loc.status.toLowerCase().includes("pending") || 
+                               loc.status.toLowerCase().includes("setup");
+
+          const pinColor = isLocPending ? '#f59e0b' : isFastenal ? '#06b6d4' : '#1d4ed8';
+
+          const pin = document.createElement("div");
+          pin.className = "absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center group pointer-events-auto cursor-pointer";
+          pin.style.left = `${coords.x}px`;
+          pin.style.top = `${coords.y}px`;
+
+          pin.innerHTML = `
+            <div class="absolute w-14 h-14 rounded-full pin-pulse" style="background-color: ${pinColor}; ${isLocPending ? 'opacity: 0.3;' : ''}"></div>
+            <div class="relative w-8 h-8 rounded-full border-2 border-white dark:border-slate-900 shadow-md flex items-center justify-center text-white font-bold text-xs font-mono" style="background-color: ${pinColor};">
+              ${pinNumber}
+            </div>
+            <div class="mt-1 px-3 py-1 bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg shadow-md text-center whitespace-nowrap z-30">
+              <span class="text-[11px] font-bold block font-mono" style="color: ${pinColor};">${loc.locationCode}</span>
+              <span class="text-[10px] text-slate-700 dark:text-slate-300 block font-medium">${loc.binDetails}</span>
+            </div>
+          `;
+          pinsOverlay.appendChild(pin);
+        });
+
+        // Enable calibration click on this building map
+        pinsOverlay.addEventListener("click", (e) => {
+          if (!isCalibrating) return;
+          const rect = pinsOverlay.getBoundingClientRect();
+          const clickX = Math.round((e.clientX - rect.left) / zoomLevel);
+          const clickY = Math.round((e.clientY - rect.top) / zoomLevel);
+
+          document.getElementById("calibX").value = clickX;
+          document.getElementById("calibY").value = clickY;
+          document.getElementById("calibBldgTarget").value = bldgName;
+          document.getElementById("calibBuildingDisplay").textContent = bldgName;
+
+          const select = document.getElementById("calibrateLocationSelect");
+          select.innerHTML = "";
+          const bldgCodes = new Set();
+          
+          groupedParts.forEach(p => {
+            p.locations.filter(l => l.building === bldgName).forEach(l => bldgCodes.add(l.locationCode));
+          });
+
+          Array.from(bldgCodes).sort().forEach(code => {
+            const isMapped = !!rackCoordinates[`${bldgName}:::${code}`];
+            const opt = document.createElement("option");
+            opt.value = code;
+            opt.textContent = `${code} ${isMapped ? '(Mapped)' : '(Unmapped)'}`;
+            select.appendChild(opt);
+          });
+
+          calibrateModal.classList.remove("hidden");
+        });
+
+        if (isCalibrating) pinsOverlay.classList.add("map-active-calibrate");
       });
+
+      lucide.createIcons();
     }
 
     // 9. MAP MANAGER
@@ -849,7 +876,10 @@
               buildingMaps[bldg] = event.target.result;
               localStorage.setItem("voltagrid_building_maps", JSON.stringify(buildingMaps));
               renderMapsManagerList();
-              if (currentBuilding === bldg) loadBuildingMap(bldg);
+              if (activePartKey) {
+                const cur = groupedParts.find(p => p.key === activePartKey);
+                if (cur) renderAllFacilityMaps(cur);
+              }
             };
             reader.readAsDataURL(file);
           }
@@ -863,7 +893,10 @@
             delete buildingMaps[bldg];
             localStorage.setItem("voltagrid_building_maps", JSON.stringify(buildingMaps));
             renderMapsManagerList();
-            if (currentBuilding === bldg) loadBuildingMap(bldg);
+            if (activePartKey) {
+              const cur = groupedParts.find(p => p.key === activePartKey);
+              if (cur) renderAllFacilityMaps(cur);
+            }
           }
         });
       });
@@ -894,11 +927,11 @@
           localStorage.setItem("voltagrid_building_maps", JSON.stringify(buildingMaps));
           newBuildingNameInput.value = "";
           newMapUpload.value = "";
-          updateBuildingDropdown(Array.from(allKnownBuildings));
-          currentBuilding = name;
-          buildingSelector.value = name;
-          loadBuildingMap(name);
           renderMapsManagerList();
+          if (activePartKey) {
+            const cur = groupedParts.find(p => p.key === activePartKey);
+            if (cur) renderAllFacilityMaps(cur);
+          }
           alert(`Successfully added new map for [${name}]!`);
         };
         reader.readAsDataURL(file);
@@ -940,80 +973,54 @@
     // 12. Calibration Workflow
     calibrateBtn.addEventListener("click", () => {
       isCalibrating = !isCalibrating;
-      pinsOverlay.classList.toggle("map-active-calibrate", isCalibrating);
+      document.querySelectorAll(".bldg-pins-overlay").forEach(overlay => {
+        overlay.classList.toggle("map-active-calibrate", isCalibrating);
+      });
       calibrateBtn.className = `flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border text-xs font-semibold shadow-xs transition ${
         isCalibrating ? 'bg-voltablue-600 border-voltablue-600 text-white' : 'bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200'
       }`;
       calibrateLabel.textContent = isCalibrating ? "Exit Calibration" : "Calibrate Pins";
       instructionBanner.textContent = isCalibrating 
-        ? `CALIBRATION MODE [${currentBuilding}]: Click anywhere on this building map to set a location pin.` 
-        : "Type part number or description in search to display storage locations.";
-    });
-
-    pinsOverlay.addEventListener("click", (e) => {
-      if (!isCalibrating) return;
-      const rect = pinsOverlay.getBoundingClientRect();
-      const clickX = Math.round((e.clientX - rect.left) / zoomLevel);
-      const clickY = Math.round((e.clientY - rect.top) / zoomLevel);
-
-      document.getElementById("calibX").value = clickX;
-      document.getElementById("calibY").value = clickY;
-      document.getElementById("calibBuildingDisplay").textContent = currentBuilding;
-
-      const select = document.getElementById("calibrateLocationSelect");
-      select.innerHTML = "";
-      const bldgCodes = new Set();
-      
-      groupedParts.forEach(p => {
-        p.locations.filter(l => l.building === currentBuilding).forEach(l => bldgCodes.add(l.locationCode));
-      });
-
-      Array.from(bldgCodes).sort().forEach(code => {
-        const isMapped = !!rackCoordinates[`${currentBuilding}:::${code}`];
-        const opt = document.createElement("option");
-        opt.value = code;
-        opt.textContent = `${code} ${isMapped ? '(Mapped)' : '(Unmapped)'}`;
-        select.appendChild(opt);
-      });
-
-      calibrateModal.classList.remove("hidden");
+        ? `CALIBRATION MODE: Click on any facility map below to link a pin.` 
+        : "Type part number or description in search to display storage locations across all buildings.";
     });
 
     document.getElementById("saveCalibBtn").addEventListener("click", () => {
       const selectedCode = document.getElementById("calibrateLocationSelect").value;
+      const targetBldg = document.getElementById("calibBldgTarget").value;
       const x = parseFloat(document.getElementById("calibX").value);
       const y = parseFloat(document.getElementById("calibY").value);
 
-      if (!selectedCode) return;
+      if (!selectedCode || !targetBldg) return;
 
-      const key = `${currentBuilding}:::${selectedCode}`;
+      const key = `${targetBldg}:::${selectedCode}`;
       rackCoordinates[key] = { x, y };
       localStorage.setItem("voltagrid_rack_coords", JSON.stringify(rackCoordinates));
       calibrateModal.classList.add("hidden");
 
       if (activePartKey) {
         const cur = groupedParts.find(p => p.key === activePartKey);
-        if (cur) renderPinsForPart(cur);
+        if (cur) renderAllFacilityMaps(cur);
       }
     });
 
     document.getElementById("closeCalibrateModal").addEventListener("click", () => calibrateModal.classList.add("hidden"));
     document.getElementById("cancelCalibBtn").addEventListener("click", () => calibrateModal.classList.add("hidden"));
 
-    // 13. Zoom Controls
+    // 13. Map Zoom Controls
     document.getElementById("zoomIn").addEventListener("click", () => {
-      zoomLevel = Math.min(zoomLevel + 0.2, 2.5);
-      mapTransformLayer.style.transform = `scale(${zoomLevel})`;
+      zoomLevel = Math.min(zoomLevel + 0.15, 2.0);
+      document.querySelectorAll(".map-canvas-layer").forEach(layer => layer.style.transform = `scale(${zoomLevel})`);
     });
 
     document.getElementById("zoomOut").addEventListener("click", () => {
-      zoomLevel = Math.max(zoomLevel - 0.2, 0.6);
-      mapTransformLayer.style.transform = `scale(${zoomLevel})`;
+      zoomLevel = Math.max(zoomLevel - 0.15, 0.5);
+      document.querySelectorAll(".map-canvas-layer").forEach(layer => layer.style.transform = `scale(${zoomLevel})`);
     });
 
     document.getElementById("zoomReset").addEventListener("click", () => {
       zoomLevel = 1;
-      mapTransformLayer.style.transform = "scale(1)";
+      document.querySelectorAll(".map-canvas-layer").forEach(layer => layer.style.transform = `scale(1)`);
     });
 
     // 14. Backup Export
