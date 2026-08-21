@@ -10,11 +10,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
 
-  <!-- Tailwind CSS, Lucide Icons, SheetJS & Fuse.js -->
+  <!-- Tailwind CSS, Lucide Icons & SheetJS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
 
   <script>
     tailwind.config = {
@@ -133,8 +132,8 @@
   <!-- Main Workstation Layout -->
   <div class="flex flex-1 overflow-hidden p-3 gap-3">
 
-    <!-- Left Search & Filter Panel (360px) -->
-    <aside class="w-[360px] bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-2xl flex flex-col h-full shadow-sm z-10 transition-colors">
+    <!-- Left Search & Filter Panel (380px) -->
+    <aside class="w-[380px] bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-2xl flex flex-col h-full shadow-sm z-10 transition-colors">
       
       <!-- Search Input Section -->
       <div class="p-4 border-b border-slate-200 dark:border-slate-800 space-y-3">
@@ -181,12 +180,12 @@
           </div>
           <div>
             <h3 class="text-xs font-bold text-slate-700 dark:text-slate-200">Instant Part Locator</h3>
-            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 max-w-[220px]">
+            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 max-w-[240px]">
               Type a part number or description above to see live results in the top table and map.
             </p>
           </div>
         </div>
-        <div id="itemsContainer" class="space-y-1.5 hidden"></div>
+        <div id="itemsContainer" class="space-y-2 hidden"></div>
       </div>
 
       <!-- Quick Summary Card -->
@@ -372,7 +371,6 @@
     let currentFilter = "all";
     let groupedParts = [];
     let allKnownBuildings = new Set(["Building 1"]);
-    let fuse = null;
 
     // DOM References
     const searchInput = document.getElementById("searchInput");
@@ -421,7 +419,7 @@
       loadBuildingMap(currentBuilding);
     });
 
-    // 2. AUTO-LOAD INVENTORY DATA FROM REPOSITORY
+    // 2. AUTO-LOAD INVENTORY DATA FROM REPO
     async function loadInventoryData() {
       syncStatusText.textContent = "Checking...";
       syncDot.className = "w-2 h-2 rounded-full bg-voltacyan-500 animate-ping";
@@ -466,7 +464,7 @@
     setInterval(loadInventoryData, 3 * 60 * 1000);
     document.getElementById("manualSyncBtn").addEventListener("click", loadInventoryData);
 
-    // 3. Multi-Column Header Resolver
+    // 3. Header Resolver
     function findVal(row, names) {
       const keys = Object.keys(row);
       for (const name of names) {
@@ -522,11 +520,6 @@
       });
 
       groupedParts = Array.from(map.values());
-      fuse = new Fuse(groupedParts, {
-        keys: ["propellNo", "fastenalNo", "description", "locations.building", "locations.locationCode", "locations.binDetails"],
-        threshold: 0.35
-      });
-
       updateBuildingDropdown(Array.from(allKnownBuildings));
       handleSearchAndUpdate();
     }
@@ -564,13 +557,36 @@
       }
     });
 
-    // 5. Filtering Logic
+    // 5. ACCURATE EXACT & SUBSTRING SEARCH (Fixes Loose Fuzzy Matches)
     function getFilteredList() {
-      const searchVal = searchInput.value.trim();
-      if (!searchVal) return [];
+      const q = searchInput.value.trim().toUpperCase();
+      if (!q) return [];
 
-      let list = fuse ? fuse.search(searchVal).map(r => r.item) : [];
+      let list = groupedParts.filter(p => {
+        // Priority 1: Exact or starts-with match on Part Numbers
+        const pNo = p.propellNo.toUpperCase();
+        const fNo = p.fastenalNo.toUpperCase();
+        const desc = p.description.toUpperCase();
 
+        return pNo.includes(q) || fNo.includes(q) || desc.includes(q);
+      });
+
+      // Sort matches: Exact matches first, then startsWith, then general contains
+      list.sort((a, b) => {
+        const aExact = a.propellNo === q || a.fastenalNo === q;
+        const bExact = b.propellNo === q || b.fastenalNo === q;
+        if (aExact && !bExact) return -1;
+        if (!aExact && bExact) return 1;
+
+        const aStart = a.propellNo.startsWith(q) || a.fastenalNo.startsWith(q);
+        const bStart = b.propellNo.startsWith(q) || b.fastenalNo.startsWith(q);
+        if (aStart && !bStart) return -1;
+        if (!aStart && bStart) return 1;
+
+        return 0;
+      });
+
+      // Filter pills
       if (currentFilter === "propell") {
         list = list.filter(p => p.supplyType.toLowerCase().includes("propell") || p.supplyType.toLowerCase().includes("stock"));
       } else if (currentFilter === "fastenal-live") {
@@ -581,7 +597,7 @@
       return list;
     }
 
-    // 6. INSTANT SEARCH & AUTO-RENDER (Directly Populates Table & Map)
+    // 6. INSTANT SEARCH & AUTO-RENDER
     function handleSearchAndUpdate() {
       const searchVal = searchInput.value.trim();
       itemsContainer.innerHTML = "";
@@ -630,21 +646,17 @@
         const bldgs = Array.from(new Set(part.locations.map(l => l.building))).join(", ");
 
         const btn = document.createElement("div");
-        btn.className = `p-2.5 rounded-xl border cursor-pointer flex items-center justify-between text-xs transition ${
+        btn.className = `p-2.5 rounded-xl border cursor-pointer flex flex-col gap-1 text-xs transition ${
           isSelected 
             ? "bg-voltablue-100 dark:bg-voltablue-950/60 border-voltablue-400 dark:border-voltablue-600 text-voltablue-950 dark:text-white font-bold shadow-xs" 
             : "bg-slate-50 dark:bg-slate-900 border-slate-300 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-400 dark:hover:border-slate-700 hover:bg-white dark:hover:bg-slate-850"
         }`;
         
         btn.innerHTML = `
-          <div class="truncate mr-2">
+          <div class="flex items-center justify-between">
             <span class="font-mono ${isFastenal ? 'text-voltacyan-700 dark:text-voltacyan-400' : 'text-voltablue-700 dark:text-voltablue-400'} font-bold">
               ${part.propellNo !== "N/A" ? part.propellNo : part.fastenalNo}
             </span>
-            ${part.fastenalNo !== "N/A" && part.propellNo !== "N/A" ? `<span class="text-slate-500 dark:text-slate-400 font-mono text-[10px]"> (FAS: ${part.fastenalNo})</span>` : ''}
-            <span class="text-slate-600 dark:text-slate-400 font-normal ml-1 truncate block text-[11px] mt-0.5">${part.description}</span>
-          </div>
-          <div class="flex flex-col items-end shrink-0 gap-1">
             <span class="text-[9px] px-2 py-0.5 rounded-full font-bold ${
               !isFastenal 
                 ? 'bg-voltablue-200/80 dark:bg-voltablue-950 text-voltablue-900 dark:text-voltablue-300 border border-voltablue-300 dark:border-voltablue-800' 
@@ -652,14 +664,18 @@
             }">
               ${!isFastenal ? 'Floor Stock' : 'Fastenal VMI'}
             </span>
-            <span class="text-[10px] text-slate-500 dark:text-slate-400 font-mono font-medium">${bldgs || 'Main'}</span>
+          </div>
+          <span class="text-slate-600 dark:text-slate-400 font-normal truncate block text-[11px]">${part.description}</span>
+          <div class="flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400 pt-0.5">
+            <span class="font-mono">${part.fastenalNo !== "N/A" ? 'FAS: ' + part.fastenalNo : ''}</span>
+            <span class="font-medium text-slate-600 dark:text-slate-400">${bldgs || 'Main'}</span>
           </div>
         `;
         btn.addEventListener("click", () => selectPart(part));
         itemsContainer.appendChild(btn);
       });
 
-      // Automatically focus the first match immediately into the table & map!
+      // Auto-focus the exact or first best match
       if (!activePartKey || !matches.some(p => p.key === activePartKey)) {
         selectPart(matches[0]);
       } else {
@@ -752,7 +768,7 @@
       lucide.createIcons();
     }
 
-    // 8. Render All Location Pins for Selected Part
+    // 8. Render Location Pins for Selected Part
     function renderPinsForPart(part) {
       pinsOverlay.innerHTML = "";
       const isFastenal = part.supplyType.toLowerCase().includes("fastenal");
@@ -790,7 +806,7 @@
       });
     }
 
-    // 9. MAP MANAGER (Preserves all existing building maps)
+    // 9. MAP MANAGER
     function renderMapsManagerList() {
       mapsListContainer.innerHTML = "";
       const bldgList = Array.from(allKnownBuildings);
@@ -889,7 +905,7 @@
       }
     });
 
-    // 10. Filter Pill Buttons
+    // 10. Filter Pills
     const filterButtons = {
       all: document.getElementById("filterAll"),
       propell: document.getElementById("filterPropell"),
@@ -908,7 +924,7 @@
       });
     });
 
-    // 11. Instant Live Search Handler
+    // 11. Search Handler
     searchInput.addEventListener("input", () => {
       clearSearch.classList.toggle("hidden", searchInput.value.trim().length === 0);
       handleSearchAndUpdate();
@@ -984,7 +1000,7 @@
     document.getElementById("closeCalibrateModal").addEventListener("click", () => calibrateModal.classList.add("hidden"));
     document.getElementById("cancelCalibBtn").addEventListener("click", () => calibrateModal.classList.add("hidden"));
 
-    // 13. Map Zoom Controls
+    // 13. Zoom Controls
     document.getElementById("zoomIn").addEventListener("click", () => {
       zoomLevel = Math.min(zoomLevel + 0.2, 2.5);
       mapTransformLayer.style.transform = `scale(${zoomLevel})`;
