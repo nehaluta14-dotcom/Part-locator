@@ -68,23 +68,22 @@
     }
     .map-active-calibrate { cursor: crosshair !important; }
     ::-webkit-scrollbar { width: 6px; height: 6px; }
-    .light ::-webkit-scrollbar-track { background: #f8fafc; }
-    .light ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+    .light ::-webkit-scrollbar-track { background: #e2e8f0; }
+    .light ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 9999px; }
     .dark ::-webkit-scrollbar-track { background: #0b1120; }
-    .dark ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 9999px; }
+    .dark ::-webkit-scrollbar-thumb { background: #334155; border-radius: 9999px; }
     .brand-gradient {
       background: linear-gradient(135deg, #1d4ed8 0%, #06b6d4 50%, #84cc16 100%);
     }
   </style>
 </head>
-<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col h-screen overflow-hidden antialiased transition-colors duration-200">
+<body class="bg-slate-200 dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col h-screen overflow-hidden antialiased transition-colors duration-200">
 
   <!-- Top Navigation Header -->
-  <header class="bg-white dark:bg-slate-900 border-b border-slate-200/90 dark:border-slate-800 px-6 py-3 flex items-center justify-between shadow-xs z-20 transition-colors">
+  <header class="bg-slate-100 dark:bg-slate-900 border-b border-slate-300 dark:border-slate-800 px-6 py-2.5 flex items-center justify-between shadow-sm z-20 transition-colors">
     <div class="flex items-center gap-3.5">
-      <!-- Voltagrid Gradient Logo -->
-      <div class="w-10 h-10 rounded-xl brand-gradient p-0.5 shadow-sm flex items-center justify-center text-white shrink-0">
-        <div class="w-full h-full bg-white dark:bg-slate-900 rounded-[10px] flex items-center justify-center transition-colors">
+      <div class="w-9 h-9 rounded-xl brand-gradient p-0.5 shadow-sm flex items-center justify-center text-white shrink-0">
+        <div class="w-full h-full bg-slate-100 dark:bg-slate-900 rounded-[10px] flex items-center justify-center transition-colors">
           <i data-lucide="zap" class="w-5 h-5 text-voltablue-600 fill-voltacyan-400 stroke-voltablue-600"></i>
         </div>
       </div>
@@ -92,60 +91,60 @@
         <h1 class="text-sm font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
           Voltagrid <span class="font-medium text-slate-400 dark:text-slate-600">|</span> <span class="font-semibold text-slate-700 dark:text-slate-200">Floor Stock and VMI (Fastenal) Parts Locator</span>
         </h1>
-        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Multi-Building Floor Plan & 2-Bin Material Flow System</p>
+        <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Interactive Floor Plan & Multi-Building Material Flow</p>
       </div>
     </div>
 
-    <!-- Right Header Action Buttons -->
+    <!-- Header Actions -->
     <div class="flex items-center gap-2">
-      <!-- Sync Status Indicator -->
-      <div class="flex items-center gap-2 px-3 py-1.5 bg-slate-50 dark:bg-slate-950 border border-slate-200/80 dark:border-slate-800 rounded-xl text-xs">
+      <!-- Sync Status -->
+      <div class="flex items-center gap-2 px-3 py-1.5 bg-slate-200/80 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-xs">
         <span id="syncDot" class="w-2 h-2 rounded-full bg-voltagreen-500 shadow-xs"></span>
         <span id="syncStatusText" class="text-slate-600 dark:text-slate-400 font-mono text-[11px] font-medium">Ready</span>
-        <button id="manualSyncBtn" class="ml-1 text-slate-400 hover:text-voltablue-600 dark:hover:text-voltacyan-400 transition" title="Refresh Live Data">
+        <button id="manualSyncBtn" class="ml-1 text-slate-400 hover:text-voltablue-600 dark:hover:text-voltacyan-400 transition" title="Refresh Data">
           <i data-lucide="rotate-cw" class="w-3.5 h-3.5"></i>
         </button>
       </div>
 
-      <!-- Light / Dark Mode Toggle -->
-      <button id="themeToggleBtn" class="p-2 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-750 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-600 dark:text-slate-300 shadow-xs transition" title="Toggle Light/Dark Theme">
+      <!-- Theme Switcher -->
+      <button id="themeToggleBtn" class="p-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-750 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-600 dark:text-slate-300 shadow-xs transition" title="Toggle Light/Dark Theme">
         <i id="themeIcon" data-lucide="moon" class="w-4 h-4 text-voltablue-600 dark:text-voltacyan-400"></i>
       </button>
 
-      <!-- Manage & Add Additional Maps -->
-      <button id="openMapManagerBtn" class="flex items-center gap-1.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-750 px-3.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-xs transition">
+      <!-- Manage Floor Maps -->
+      <button id="openMapManagerBtn" class="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-750 px-3.5 py-1.5 rounded-xl border border-slate-300 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-xs transition">
         <i data-lucide="map" class="w-4 h-4 text-voltacyan-600 dark:text-voltacyan-400"></i>
         <span>Floor Maps</span>
       </button>
 
       <!-- Calibrate Pins Button -->
-      <button id="calibrateBtn" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-750 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-xs transition">
+      <button id="calibrateBtn" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-750 border border-slate-300 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-xs transition">
         <i data-lucide="crosshair" class="w-4 h-4 text-voltablue-600 dark:text-voltablue-400"></i>
         <span id="calibrateLabel">Calibrate Pins</span>
       </button>
 
-      <!-- Backup JSON Export -->
-      <button id="exportConfigBtn" class="p-2 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-750 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 shadow-xs transition" title="Export Backup JSON">
+      <!-- Export Backup -->
+      <button id="exportConfigBtn" class="p-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-750 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 shadow-xs transition" title="Export Backup JSON">
         <i data-lucide="download" class="w-4 h-4"></i>
       </button>
     </div>
   </header>
 
   <!-- Main Workstation Layout -->
-  <div class="flex flex-1 overflow-hidden relative">
+  <div class="flex flex-1 overflow-hidden p-3 gap-3">
 
-    <!-- Left Search & Filter Sidebar (420px) -->
-    <aside class="w-[420px] bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col h-full shadow-xs z-10 transition-colors">
+    <!-- Left Search & Filter Panel (360px) -->
+    <aside class="w-[360px] bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-2xl flex flex-col h-full shadow-sm z-10 transition-colors">
       
-      <!-- Part Search Header -->
-      <div class="p-4 border-b border-slate-100 dark:border-slate-800 space-y-3 bg-white dark:bg-slate-900 transition-colors">
+      <!-- Search Input Section -->
+      <div class="p-4 border-b border-slate-200 dark:border-slate-800 space-y-3">
         <div>
           <div class="flex items-center justify-between mb-1.5">
-            <label class="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+            <label class="text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
               <i data-lucide="search" class="w-3.5 h-3.5 text-voltablue-600 dark:text-voltacyan-400"></i>
               <span>Part Search</span>
             </label>
-            <span id="partsCount" class="text-[11px] text-slate-400 dark:text-slate-500 font-mono font-medium">Ready</span>
+            <span id="partsCount" class="text-[11px] text-slate-500 dark:text-slate-400 font-mono font-medium">Ready</span>
           </div>
 
           <div class="relative">
@@ -153,20 +152,20 @@
             <input 
               type="text" 
               id="searchInput" 
-              placeholder="Insert Propell or Fastenal part number or description..." 
-              class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-750 rounded-xl pl-10 pr-8 py-2.5 text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-voltablue-500/20 focus:border-voltablue-600 transition font-medium"
+              placeholder="Insert Propell #, Fastenal #, or Description..." 
+              class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-750 rounded-xl pl-10 pr-8 py-2.5 text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-voltablue-500/20 focus:border-voltablue-600 transition font-medium"
             />
             <button id="clearSearch" class="hidden absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
               <i data-lucide="x" class="w-4 h-4"></i>
             </button>
           </div>
-          <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-1.5 pl-1">
-            Insert Propell #, Fastenal SKU, or part description above to locate items.
+          <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1.5 pl-1">
+            Type below to instantly filter table & map pins.
           </p>
         </div>
 
         <!-- Filter Pills -->
-        <div class="flex gap-1.5 text-[11px] p-1 bg-slate-100 dark:bg-slate-950 rounded-xl">
+        <div class="flex gap-1 text-[11px] p-1 bg-slate-200/80 dark:bg-slate-950 rounded-xl border border-slate-300/60 dark:border-slate-800">
           <button id="filterAll" class="filter-btn active flex-1 py-1 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-bold shadow-xs">All</button>
           <button id="filterPropell" class="filter-btn flex-1 py-1 rounded-lg text-slate-600 dark:text-slate-400 font-semibold hover:text-slate-900 dark:hover:text-white transition">Floor Stock</button>
           <button id="filterFastenalLive" class="filter-btn flex-1 py-1 rounded-lg text-slate-600 dark:text-slate-400 font-semibold hover:text-slate-900 dark:hover:text-white transition">VMI Live</button>
@@ -174,81 +173,79 @@
         </div>
       </div>
 
-      <!-- Quick Search Results List (Empty by default until user types) -->
-      <div id="resultsStrip" class="flex-1 overflow-y-auto p-3 space-y-2 bg-slate-50/50 dark:bg-slate-950/40">
-        <!-- Default Empty State Prompt -->
+      <!-- Left Live Match Cards List -->
+      <div id="resultsStrip" class="flex-1 overflow-y-auto p-3 space-y-2 bg-slate-200/40 dark:bg-slate-950/40">
         <div id="emptySearchPrompt" class="flex flex-col items-center justify-center h-full text-center p-6 space-y-3">
-          <div class="w-12 h-12 rounded-2xl bg-voltablue-50 dark:bg-voltablue-950/60 border border-voltablue-100 dark:border-voltablue-900/60 flex items-center justify-center text-voltablue-600 dark:text-voltacyan-400 shadow-xs">
-            <i data-lucide="package-search" class="w-6 h-6"></i>
+          <div class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 flex items-center justify-center text-voltablue-600 dark:text-voltacyan-400 shadow-xs">
+            <i data-lucide="search" class="w-6 h-6"></i>
           </div>
           <div>
-            <h3 class="text-xs font-bold text-slate-700 dark:text-slate-200">No Parts Loaded Yet</h3>
-            <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-1 max-w-[240px]">
-              Type a Propell part number, Fastenal SKU, or description in the search bar above.
+            <h3 class="text-xs font-bold text-slate-700 dark:text-slate-200">Instant Part Locator</h3>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 max-w-[220px]">
+              Type a part number or description above to see live results in the top table and map.
             </p>
           </div>
         </div>
         <div id="itemsContainer" class="space-y-1.5 hidden"></div>
       </div>
 
-      <!-- Active Selected Part Summary (Hidden until selected) -->
-      <div id="selectedPartSummaryCard" class="p-4 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hidden space-y-3">
+      <!-- Quick Summary Card -->
+      <div id="selectedPartSummaryCard" class="p-3.5 border-t border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 hidden space-y-2.5 rounded-b-2xl">
         <div class="flex items-center justify-between">
           <span id="summarySupplyBadge" class="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full border">--</span>
-          <span id="summaryTotalLocations" class="text-[11px] font-mono text-slate-500 dark:text-slate-400 font-semibold">0 Locations</span>
+          <span id="summaryTotalLocations" class="text-[11px] font-mono text-slate-600 dark:text-slate-400 font-bold">0 Locations</span>
         </div>
         <div class="grid grid-cols-2 gap-2">
-          <div class="bg-voltablue-50/70 dark:bg-voltablue-950/40 p-2.5 rounded-xl border border-voltablue-100 dark:border-voltablue-900/60">
-            <span class="text-[10px] uppercase font-bold text-voltablue-700 dark:text-voltablue-300 block">Propell Part #</span>
-            <span id="summaryPropellNo" class="text-xs font-bold font-mono text-voltablue-900 dark:text-voltablue-200 block truncate">--</span>
+          <div class="bg-slate-200/80 dark:bg-slate-950/60 p-2 rounded-xl border border-slate-300/80 dark:border-slate-800">
+            <span class="text-[9px] uppercase font-bold text-slate-500 dark:text-slate-400 block">Propell Part #</span>
+            <span id="summaryPropellNo" class="text-xs font-bold font-mono text-voltablue-700 dark:text-voltablue-300 block truncate">--</span>
           </div>
-          <div class="bg-voltacyan-50/70 dark:bg-voltacyan-950/40 p-2.5 rounded-xl border border-voltacyan-100 dark:border-voltacyan-900/60">
-            <span class="text-[10px] uppercase font-bold text-voltacyan-700 dark:text-voltacyan-300 block">Fastenal Part #</span>
+          <div class="bg-slate-200/80 dark:bg-slate-950/60 p-2 rounded-xl border border-slate-300/80 dark:border-slate-800">
+            <span class="text-[9px] uppercase font-bold text-slate-500 dark:text-slate-400 block">Fastenal Part #</span>
             <span id="summaryFastenalNo" class="text-xs font-bold font-mono text-slate-800 dark:text-slate-200 block truncate">--</span>
           </div>
         </div>
         <div>
-          <span class="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 block mb-0.5">Description</span>
-          <p id="summaryDescription" class="text-xs font-medium text-slate-700 dark:text-slate-300 line-clamp-2 leading-relaxed"></p>
+          <p id="summaryDescription" class="text-[11px] font-medium text-slate-700 dark:text-slate-300 line-clamp-2 leading-relaxed bg-slate-200/60 dark:bg-slate-950/50 p-2 rounded-lg border border-slate-300/60 dark:border-slate-800"></p>
         </div>
       </div>
     </aside>
 
-    <!-- Right Workspace: Top Results Table & Interactive Map -->
-    <main class="flex-1 bg-slate-100 dark:bg-slate-950 flex flex-col overflow-hidden transition-colors">
+    <!-- Right Workspace: Top Table & Floor Plan Canvas -->
+    <main class="flex-1 bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-2xl flex flex-col overflow-hidden shadow-sm transition-colors">
       
-      <!-- Top Floor Navigation Ribbon -->
-      <div class="p-3 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between shadow-xs shrink-0">
+      <!-- Top Floor Selection Ribbon -->
+      <div class="p-3 bg-slate-200/70 dark:bg-slate-900 border-b border-slate-300 dark:border-slate-800 flex items-center justify-between shadow-2xs shrink-0">
         <div class="flex items-center gap-3">
           <div class="flex items-center gap-2">
-            <span class="text-xs font-bold uppercase text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-              <i data-lucide="building" class="w-3.5 h-3.5 text-voltablue-600 dark:text-voltacyan-400"></i> Active Building Map:
+            <span class="text-xs font-bold uppercase text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
+              <i data-lucide="building" class="w-3.5 h-3.5 text-voltablue-600 dark:text-voltacyan-400"></i> Active Building:
             </span>
-            <select id="buildingSelector" class="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1 text-xs font-bold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-voltablue-500/20 font-mono"></select>
+            <select id="buildingSelector" class="bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-1 text-xs font-bold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-voltablue-500/20 font-mono"></select>
           </div>
-          <span id="instructionBanner" class="text-xs text-slate-500 dark:text-slate-400 font-medium border-l border-slate-200 dark:border-slate-800 pl-3">
-            Search for a part to view location details in the table and visual floor pins.
+          <span id="instructionBanner" class="text-xs text-slate-600 dark:text-slate-400 font-medium border-l border-slate-300 dark:border-slate-700 pl-3">
+            Type part number or description in search to display storage locations.
           </span>
         </div>
 
         <!-- Zoom Controls -->
-        <div class="flex items-center gap-1 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-750 p-1 rounded-xl shadow-2xs">
-          <button id="zoomIn" class="p-1 hover:bg-white dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg transition" title="Zoom In">
+        <div class="flex items-center gap-1 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-750 p-1 rounded-xl shadow-2xs">
+          <button id="zoomIn" class="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg transition" title="Zoom In">
             <i data-lucide="plus" class="w-3.5 h-3.5"></i>
           </button>
-          <button id="zoomOut" class="p-1 hover:bg-white dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg transition" title="Zoom Out">
+          <button id="zoomOut" class="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg transition" title="Zoom Out">
             <i data-lucide="minus" class="w-3.5 h-3.5"></i>
           </button>
-          <button id="zoomReset" class="px-2 py-0.5 hover:bg-white dark:hover:bg-slate-800 text-[11px] font-bold text-slate-700 dark:text-slate-300 rounded-lg transition">
+          <button id="zoomReset" class="px-2 py-0.5 hover:bg-slate-100 dark:hover:bg-slate-800 text-[11px] font-bold text-slate-700 dark:text-slate-300 rounded-lg transition">
             Reset
           </button>
         </div>
       </div>
 
-      <!-- Results Data Table (Shows when part is searched/selected) -->
-      <div id="tableSection" class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 max-h-56 overflow-y-auto shrink-0 shadow-xs">
+      <!-- Top Results Data Table (Instant auto-populated) -->
+      <div id="tableSection" class="bg-slate-50 dark:bg-slate-900/90 border-b border-slate-300 dark:border-slate-800 max-h-60 overflow-y-auto shrink-0">
         <table class="w-full text-left border-collapse text-xs">
-          <thead class="bg-slate-50 dark:bg-slate-950/80 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-10">
+          <thead class="bg-slate-200/80 dark:bg-slate-950 border-b border-slate-300 dark:border-slate-800 sticky top-0 z-10">
             <tr>
               <th class="py-2.5 px-3 font-bold text-slate-600 dark:text-slate-400 uppercase text-[10px] tracking-wider font-mono">#</th>
               <th class="py-2.5 px-3 font-bold text-slate-600 dark:text-slate-400 uppercase text-[10px] tracking-wider">Propell Part #</th>
@@ -260,25 +257,25 @@
               <th class="py-2.5 px-3 font-bold text-slate-600 dark:text-slate-400 uppercase text-[10px] tracking-wider">Supply Status</th>
             </tr>
           </thead>
-          <tbody id="locationsTableBody" class="divide-y divide-slate-100 dark:divide-slate-800/60 font-medium">
+          <tbody id="locationsTableBody" class="divide-y divide-slate-200/70 dark:divide-slate-800/60 font-medium">
             <tr>
-              <td colspan="8" class="text-center py-5 text-slate-400 dark:text-slate-500 text-xs">
-                No part selected. Search and select a part on the left to see all physical storage locations.
+              <td colspan="8" class="text-center py-6 text-slate-500 dark:text-slate-400 text-xs">
+                No part searched. Insert Propell #, Fastenal SKU, or description to display storage details.
               </td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      <!-- Floor Plan Map Viewport -->
-      <div id="mapViewport" class="flex-1 flex items-center justify-center p-6 overflow-auto relative">
+      <!-- Floor Plan Canvas Viewport -->
+      <div id="mapViewport" class="flex-1 bg-slate-200/60 dark:bg-slate-950 flex items-center justify-center p-6 overflow-auto relative">
         <div id="mapTransformLayer" class="relative inline-block transition-transform duration-200 origin-center">
           
           <img 
             id="floorPlanImage" 
             src="" 
             alt="Floor Plan" 
-            class="max-w-none shadow-lg rounded-2xl border border-slate-200 dark:border-slate-800 select-none pointer-events-none"
+            class="max-w-none shadow-md rounded-xl border border-slate-300 dark:border-slate-800 select-none pointer-events-none"
             style="width: 1000px; height: 650px;"
           />
 
@@ -289,10 +286,10 @@
     </main>
   </div>
 
-  <!-- Multi-Map Manager Modal (Add / Update / Delete Floor Plans without losing old ones) -->
+  <!-- Multi-Map Manager Modal -->
   <div id="mapManagerModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 flex items-center justify-center hidden">
-    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5">
-      <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+    <div class="bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5">
+      <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
         <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
           <i data-lucide="layers" class="w-4 h-4 text-voltablue-600 dark:text-voltacyan-400"></i> Floor Map Manager
         </h3>
@@ -300,14 +297,14 @@
       </div>
 
       <!-- Section 1: Add New Building Map -->
-      <div class="space-y-3 p-3.5 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800">
+      <div class="space-y-3 p-3.5 bg-slate-200/80 dark:bg-slate-950 rounded-xl border border-slate-300 dark:border-slate-800">
         <span class="text-xs font-bold uppercase text-slate-700 dark:text-slate-300 block">Add Additional Building Map</span>
         <div class="grid grid-cols-2 gap-2">
           <input 
             type="text" 
             id="newBuildingNameInput" 
             placeholder="e.g., Solar Building GT Line" 
-            class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-voltablue-500/20 font-medium"
+            class="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-voltablue-500/20 font-medium"
           />
           <label class="flex items-center justify-center gap-1.5 cursor-pointer bg-voltablue-600 hover:bg-voltablue-700 text-white px-3 py-2 rounded-xl text-xs font-semibold shadow-xs transition">
             <i data-lucide="upload" class="w-3.5 h-3.5"></i>
@@ -323,16 +320,16 @@
         <div id="mapsListContainer" class="max-h-48 overflow-y-auto space-y-1.5 pr-1"></div>
       </div>
 
-      <div class="flex justify-end pt-2 border-t border-slate-100 dark:border-slate-800">
-        <button id="closeMapManagerBtn2" class="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-semibold transition">Close</button>
+      <div class="flex justify-end pt-2 border-t border-slate-200 dark:border-slate-800">
+        <button id="closeMapManagerBtn2" class="px-4 py-2 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-semibold transition">Close</button>
       </div>
     </div>
   </div>
 
   <!-- Calibration Dropdown Modal -->
   <div id="calibrateModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 flex items-center justify-center hidden">
-    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl max-w-sm w-full p-5 shadow-2xl space-y-4">
-      <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+    <div class="bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-2xl max-w-sm w-full p-5 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
         <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
           <i data-lucide="map-pin" class="w-4 h-4 text-voltablue-600 dark:text-voltacyan-400"></i> Calibrate Rack Pin
         </h3>
@@ -346,33 +343,27 @@
         </div>
         <div>
           <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Select Location / Rack Code</label>
-          <select id="calibrateLocationSelect" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl p-2.5 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-voltablue-500/20 font-mono font-medium"></select>
+          <select id="calibrateLocationSelect" class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-voltablue-500/20 font-mono font-medium"></select>
         </div>
         <input type="hidden" id="calibX" />
         <input type="hidden" id="calibY" />
       </div>
 
-      <div class="flex justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
-        <button id="cancelCalibBtn" class="px-3.5 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-semibold transition">Cancel</button>
+      <div class="flex justify-end gap-2 pt-2 border-t border-slate-200 dark:border-slate-800">
+        <button id="cancelCalibBtn" class="px-3.5 py-2 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-semibold transition">Cancel</button>
         <button id="saveCalibBtn" class="px-3.5 py-2 bg-voltablue-600 hover:bg-voltablue-700 text-white rounded-xl text-xs font-semibold shadow-xs transition">Save Coordinate</button>
       </div>
     </div>
   </div>
 
   <script>
-    // Default Embedded Voltagrid SVGs for Light and Dark Modes
-    const defaultLightSvg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='650' viewBox='0 0 1000 650'><rect width='1000' height='650' fill='%23ffffff'/><defs><pattern id='grid' width='30' height='30' patternUnits='userSpaceOnUse'><path d='M 30 0 L 0 0 0 30' fill='none' stroke='%23f1f5f9' stroke-width='1'/></pattern></defs><rect width='1000' height='650' fill='url(%23grid)'/><rect x='40' y='40' width='920' height='570' rx='12' fill='none' stroke='%23cbd5e1' stroke-width='2'/><rect x='80' y='80' width='200' height='120' rx='10' fill='%23eff6ff' stroke='%23bfdbfe' stroke-width='1.5'/><text x='180' y='145' fill='%231d4ed8' font-size='13' text-anchor='middle' font-weight='bold' font-family='sans-serif'>PROPELL RACK A-01</text><rect x='340' y='80' width='200' height='120' rx='10' fill='%23eff6ff' stroke='%23bfdbfe' stroke-width='1.5'/><text x='440' y='145' fill='%231d4ed8' font-size='13' text-anchor='middle' font-weight='bold' font-family='sans-serif'>PROPELL RACK A-02</text><rect x='80' y='260' width='200' height='120' rx='10' fill='%23ecfeff' stroke='%23a5f3fc' stroke-width='1.5'/><text x='180' y='325' fill='%230891b2' font-size='13' text-anchor='middle' font-weight='bold' font-family='sans-serif'>FASTENAL VMI B-01</text><rect x='340' y='260' width='200' height='120' rx='10' fill='%23ecfeff' stroke='%23a5f3fc' stroke-width='1.5'/><text x='440' y='325' fill='%230891b2' font-size='13' text-anchor='middle' font-weight='bold' font-family='sans-serif'>FASTENAL VMI B-02</text><rect x='600' y='80' width='320' height='300' rx='10' fill='%23f7fee7' stroke='%23d9f99d' stroke-width='1.5'/><text x='760' y='235' fill='%234d7c0f' font-size='14' text-anchor='middle' font-weight='bold' font-family='sans-serif'>ASSEMBLY STAGING</text><rect x='80' y='440' width='840' height='130' rx='10' fill='%23f8fafc' stroke='%23e2e8f0' stroke-width='1.5'/><text x='500' y='510' fill='%23475569' font-size='14' text-anchor='middle' font-weight='bold' font-family='sans-serif'>RECEIVING & BULK STORAGE</text></svg>";
+    // Embedded Voltagrid SVGs
+    const defaultLightSvg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='650' viewBox='0 0 1000 650'><rect width='1000' height='650' fill='%23f1f5f9'/><defs><pattern id='grid' width='30' height='30' patternUnits='userSpaceOnUse'><path d='M 30 0 L 0 0 0 30' fill='none' stroke='%23cbd5e1' stroke-width='1'/></pattern></defs><rect width='1000' height='650' fill='url(%23grid)'/><rect x='40' y='40' width='920' height='570' rx='12' fill='none' stroke='%2394a3b8' stroke-width='2'/><rect x='80' y='80' width='200' height='120' rx='10' fill='%23e0f2fe' stroke='%237dd3fc' stroke-width='1.5'/><text x='180' y='145' fill='%230369a1' font-size='13' text-anchor='middle' font-weight='bold' font-family='sans-serif'>PROPELL RACK A-01</text><rect x='340' y='80' width='200' height='120' rx='10' fill='%23e0f2fe' stroke='%237dd3fc' stroke-width='1.5'/><text x='440' y='145' fill='%230369a1' font-size='13' text-anchor='middle' font-weight='bold' font-family='sans-serif'>PROPELL RACK A-02</text><rect x='80' y='260' width='200' height='120' rx='10' fill='%23cffafe' stroke='%2367e8f9' stroke-width='1.5'/><text x='180' y='325' fill='%230e7490' font-size='13' text-anchor='middle' font-weight='bold' font-family='sans-serif'>FASTENAL VMI B-01</text><rect x='340' y='260' width='200' height='120' rx='10' fill='%23cffafe' stroke='%2367e8f9' stroke-width='1.5'/><text x='440' y='325' fill='%230e7490' font-size='13' text-anchor='middle' font-weight='bold' font-family='sans-serif'>FASTENAL VMI B-02</text><rect x='600' y='80' width='320' height='300' rx='10' fill='%23ecfccb' stroke='%23bef264' stroke-width='1.5'/><text x='760' y='235' fill='%234d7c0f' font-size='14' text-anchor='middle' font-weight='bold' font-family='sans-serif'>ASSEMBLY STAGING</text><rect x='80' y='440' width='840' height='130' rx='10' fill='%23e2e8f0' stroke='%23cbd5e1' stroke-width='1.5'/><text x='500' y='510' fill='%23475569' font-size='14' text-anchor='middle' font-weight='bold' font-family='sans-serif'>RECEIVING & BULK STORAGE</text></svg>";
     const defaultDarkSvg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='650' viewBox='0 0 1000 650'><rect width='1000' height='650' fill='%23090d16'/><defs><pattern id='griddark' width='30' height='30' patternUnits='userSpaceOnUse'><path d='M 30 0 L 0 0 0 30' fill='none' stroke='%231e293b' stroke-width='1'/></pattern></defs><rect width='1000' height='650' fill='url(%23griddark)'/><rect x='40' y='40' width='920' height='570' rx='12' fill='none' stroke='%23334155' stroke-width='2'/><rect x='80' y='80' width='200' height='120' rx='10' fill='%23172554' stroke='%232563eb' stroke-width='1.5'/><text x='180' y='145' fill='%2360a5fa' font-size='13' text-anchor='middle' font-weight='bold' font-family='sans-serif'>PROPELL RACK A-01</text><rect x='340' y='80' width='200' height='120' rx='10' fill='%23172554' stroke='%232563eb' stroke-width='1.5'/><text x='440' y='145' fill='%2360a5fa' font-size='13' text-anchor='middle' font-weight='bold' font-family='sans-serif'>PROPELL RACK A-02</text><rect x='80' y='260' width='200' height='120' rx='10' fill='%23083344' stroke='%2306b6d4' stroke-width='1.5'/><text x='180' y='325' fill='%2322d3ee' font-size='13' text-anchor='middle' font-weight='bold' font-family='sans-serif'>FASTENAL VMI B-01</text><rect x='340' y='260' width='200' height='120' rx='10' fill='%23083344' stroke='%2306b6d4' stroke-width='1.5'/><text x='440' y='325' fill='%2322d3ee' font-size='13' text-anchor='middle' font-weight='bold' font-family='sans-serif'>FASTENAL VMI B-02</text><rect x='600' y='80' width='320' height='300' rx='10' fill='%2314532d' stroke='%2384cc16' stroke-width='1.5'/><text x='760' y='235' fill='%23a3e635' font-size='14' text-anchor='middle' font-weight='bold' font-family='sans-serif'>ASSEMBLY STAGING</text><rect x='80' y='440' width='840' height='130' rx='10' fill='%230f172a' stroke='%23334155' stroke-width='1.5'/><text x='500' y='510' fill='%2394a3b8' font-size='14' text-anchor='middle' font-weight='bold' font-family='sans-serif'>RECEIVING & BULK STORAGE</text></svg>";
 
     // State Store
     let buildingMaps = JSON.parse(localStorage.getItem("voltagrid_building_maps")) || {};
-    let rackCoordinates = JSON.parse(localStorage.getItem("voltagrid_rack_coords")) || {
-      "Building 1:::GT-PHASE-1": { x: 180, y: 140 },
-      "Building 1:::GT-PHASE-2": { x: 440, y: 140 },
-      "Building 1:::FASTENAL-B1": { x: 180, y: 320 },
-      "Building 1:::FASTENAL-B2": { x: 440, y: 320 }
-    };
-
+    let rackCoordinates = JSON.parse(localStorage.getItem("voltagrid_rack_coords")) || {};
     let rawInventory = JSON.parse(localStorage.getItem("voltagrid_cached_inventory")) || [];
     let currentBuilding = "Building 1";
     let isCalibrating = false;
@@ -383,7 +374,7 @@
     let allKnownBuildings = new Set(["Building 1"]);
     let fuse = null;
 
-    // DOM Elements
+    // DOM References
     const searchInput = document.getElementById("searchInput");
     const clearSearch = document.getElementById("clearSearch");
     const emptySearchPrompt = document.getElementById("emptySearchPrompt");
@@ -408,7 +399,7 @@
     const newBuildingNameInput = document.getElementById("newBuildingNameInput");
     const newMapUpload = document.getElementById("newMapUpload");
 
-    // 1. THEME INITIALIZATION (Light / Dark)
+    // 1. THEME INITIALIZATION
     function initTheme() {
       const savedTheme = localStorage.getItem("voltagrid_theme") || "light";
       if (savedTheme === "dark") {
@@ -430,7 +421,7 @@
       loadBuildingMap(currentBuilding);
     });
 
-    // 2. AUTO-LOAD INVENTORY DATA FROM REPO
+    // 2. AUTO-LOAD INVENTORY DATA FROM REPOSITORY
     async function loadInventoryData() {
       syncStatusText.textContent = "Checking...";
       syncDot.className = "w-2 h-2 rounded-full bg-voltacyan-500 animate-ping";
@@ -537,7 +528,7 @@
       });
 
       updateBuildingDropdown(Array.from(allKnownBuildings));
-      renderQuickResults();
+      handleSearchAndUpdate();
     }
 
     function updateBuildingDropdown(buildingsList) {
@@ -573,7 +564,7 @@
       }
     });
 
-    // 5. Filtering Logic (Triggered ONLY when user searches)
+    // 5. Filtering Logic
     function getFilteredList() {
       const searchVal = searchInput.value.trim();
       if (!searchVal) return [];
@@ -590,30 +581,50 @@
       return list;
     }
 
-    // 6. Render Search Results Strip
-    function renderQuickResults() {
+    // 6. INSTANT SEARCH & AUTO-RENDER (Directly Populates Table & Map)
+    function handleSearchAndUpdate() {
       const searchVal = searchInput.value.trim();
       itemsContainer.innerHTML = "";
 
       if (!searchVal) {
         emptySearchPrompt.classList.remove("hidden");
         itemsContainer.classList.add("hidden");
+        selectedPartSummaryCard.classList.add("hidden");
         partsCount.textContent = "Ready";
+        pinsOverlay.innerHTML = "";
+        locationsTableBody.innerHTML = `
+          <tr>
+            <td colspan="8" class="text-center py-6 text-slate-500 dark:text-slate-400 text-xs">
+              No part searched. Insert Propell #, Fastenal SKU, or description to display storage details.
+            </td>
+          </tr>
+        `;
+        instructionBanner.textContent = "Type part number or description in search to display storage locations.";
         return;
       }
 
       emptySearchPrompt.classList.add("hidden");
       itemsContainer.classList.remove("hidden");
 
-      const items = getFilteredList();
-      partsCount.textContent = `${items.length} found`;
+      const matches = getFilteredList();
+      partsCount.textContent = `${matches.length} found`;
 
-      if (items.length === 0) {
-        itemsContainer.innerHTML = `<div class="text-xs text-slate-400 dark:text-slate-500 text-center py-6">No matching parts found</div>`;
+      if (matches.length === 0) {
+        itemsContainer.innerHTML = `<div class="text-xs text-slate-500 dark:text-slate-400 text-center py-6">No matching parts found in inventory.</div>`;
+        locationsTableBody.innerHTML = `
+          <tr>
+            <td colspan="8" class="text-center py-6 text-rose-500 font-semibold text-xs">
+              No parts found matching "${searchVal}". Check spelling or part number.
+            </td>
+          </tr>
+        `;
+        selectedPartSummaryCard.classList.add("hidden");
+        pinsOverlay.innerHTML = "";
         return;
       }
 
-      items.forEach(part => {
+      // Render Left Strip Items
+      matches.forEach(part => {
         const isSelected = part.key === activePartKey;
         const isFastenal = part.supplyType.toLowerCase().includes("fastenal");
         const bldgs = Array.from(new Set(part.locations.map(l => l.building))).join(", ");
@@ -621,54 +632,61 @@
         const btn = document.createElement("div");
         btn.className = `p-2.5 rounded-xl border cursor-pointer flex items-center justify-between text-xs transition ${
           isSelected 
-            ? "bg-voltablue-50 dark:bg-voltablue-950/60 border-voltablue-300 dark:border-voltablue-600 text-voltablue-950 dark:text-white font-bold shadow-xs" 
-            : "bg-white dark:bg-slate-900 border-slate-200/80 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-50/50 dark:hover:bg-slate-850"
+            ? "bg-voltablue-100 dark:bg-voltablue-950/60 border-voltablue-400 dark:border-voltablue-600 text-voltablue-950 dark:text-white font-bold shadow-xs" 
+            : "bg-slate-50 dark:bg-slate-900 border-slate-300 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-400 dark:hover:border-slate-700 hover:bg-white dark:hover:bg-slate-850"
         }`;
         
         btn.innerHTML = `
           <div class="truncate mr-2">
-            <span class="font-mono ${isFastenal ? 'text-voltacyan-600 dark:text-voltacyan-400' : 'text-voltablue-700 dark:text-voltablue-400'} font-bold">
+            <span class="font-mono ${isFastenal ? 'text-voltacyan-700 dark:text-voltacyan-400' : 'text-voltablue-700 dark:text-voltablue-400'} font-bold">
               ${part.propellNo !== "N/A" ? part.propellNo : part.fastenalNo}
             </span>
-            ${part.fastenalNo !== "N/A" && part.propellNo !== "N/A" ? `<span class="text-slate-400 dark:text-slate-500 font-mono text-[10px]"> (FAS: ${part.fastenalNo})</span>` : ''}
-            <span class="text-slate-500 dark:text-slate-400 font-normal ml-1 truncate block text-[11px] mt-0.5">${part.description}</span>
+            ${part.fastenalNo !== "N/A" && part.propellNo !== "N/A" ? `<span class="text-slate-500 dark:text-slate-400 font-mono text-[10px]"> (FAS: ${part.fastenalNo})</span>` : ''}
+            <span class="text-slate-600 dark:text-slate-400 font-normal ml-1 truncate block text-[11px] mt-0.5">${part.description}</span>
           </div>
           <div class="flex flex-col items-end shrink-0 gap-1">
             <span class="text-[9px] px-2 py-0.5 rounded-full font-bold ${
               !isFastenal 
-                ? 'bg-voltablue-100 dark:bg-voltablue-950/80 text-voltablue-800 dark:text-voltablue-300 border border-voltablue-200 dark:border-voltablue-800' 
-                : 'bg-voltacyan-100 dark:bg-voltacyan-950/80 text-voltacyan-800 dark:text-voltacyan-300 border border-voltacyan-200 dark:border-voltacyan-800'
+                ? 'bg-voltablue-200/80 dark:bg-voltablue-950 text-voltablue-900 dark:text-voltablue-300 border border-voltablue-300 dark:border-voltablue-800' 
+                : 'bg-voltacyan-200/80 dark:bg-voltacyan-950 text-voltacyan-900 dark:text-voltacyan-300 border border-voltacyan-300 dark:border-voltacyan-800'
             }">
               ${!isFastenal ? 'Floor Stock' : 'Fastenal VMI'}
             </span>
-            <span class="text-[10px] text-slate-400 dark:text-slate-500 font-mono font-medium">${bldgs || 'Main'}</span>
+            <span class="text-[10px] text-slate-500 dark:text-slate-400 font-mono font-medium">${bldgs || 'Main'}</span>
           </div>
         `;
         btn.addEventListener("click", () => selectPart(part));
         itemsContainer.appendChild(btn);
       });
+
+      // Automatically focus the first match immediately into the table & map!
+      if (!activePartKey || !matches.some(p => p.key === activePartKey)) {
+        selectPart(matches[0]);
+      } else {
+        const cur = matches.find(p => p.key === activePartKey);
+        selectPart(cur || matches[0]);
+      }
     }
 
-    // 7. Select Part -> Populate Table & Visual Map Pins
+    // 7. Select Part & Instant Multi-Location Render
     function selectPart(part) {
       activePartKey = part.key;
-      renderQuickResults();
 
-      // Show Left Summary Card
+      // Update Left Summary Card
       selectedPartSummaryCard.classList.remove("hidden");
       const isFastenal = part.supplyType.toLowerCase().includes("fastenal");
       const summaryBadge = document.getElementById("summarySupplyBadge");
       summaryBadge.textContent = part.supplyType;
       summaryBadge.className = isFastenal
-        ? "text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-voltacyan-50 dark:bg-voltacyan-950/60 text-voltacyan-700 dark:text-voltacyan-300 border border-voltacyan-200 dark:border-voltacyan-800"
-        : "text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-voltablue-50 dark:bg-voltablue-950/60 text-voltablue-700 dark:text-voltablue-300 border border-voltablue-200 dark:border-voltablue-800";
+        ? "text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-voltacyan-100 dark:bg-voltacyan-950/60 text-voltacyan-800 dark:text-voltacyan-300 border border-voltacyan-300 dark:border-voltacyan-800"
+        : "text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-voltablue-100 dark:bg-voltablue-950/60 text-voltablue-800 dark:text-voltablue-300 border border-voltablue-300 dark:border-voltablue-800";
 
       document.getElementById("summaryPropellNo").textContent = part.propellNo;
       document.getElementById("summaryFastenalNo").textContent = part.fastenalNo;
       document.getElementById("summaryDescription").textContent = part.description;
       document.getElementById("summaryTotalLocations").textContent = `${part.locations.length} Location(s)`;
 
-      // Auto Switch Building to first location if not in current
+      // Auto Switch Building to match if needed
       if (part.locations.length > 0 && !part.locations.some(l => l.building === currentBuilding)) {
         currentBuilding = part.locations[0].building;
         buildingSelector.value = currentBuilding;
@@ -680,7 +698,7 @@
       if (part.locations.length === 0) {
         locationsTableBody.innerHTML = `
           <tr>
-            <td colspan="8" class="text-center py-4 text-slate-400 dark:text-slate-500">No physical rack or bin locations assigned yet.</td>
+            <td colspan="8" class="text-center py-4 text-slate-500 dark:text-slate-400">No physical storage locations assigned.</td>
           </tr>
         `;
       } else {
@@ -691,7 +709,7 @@
           const isCurrentBldg = loc.building === currentBuilding;
 
           const row = document.createElement("tr");
-          row.className = `cursor-pointer transition hover:bg-slate-50 dark:hover:bg-slate-800/60 ${isCurrentBldg ? 'bg-voltablue-50/40 dark:bg-voltablue-950/20' : ''}`;
+          row.className = `cursor-pointer transition hover:bg-slate-200/80 dark:hover:bg-slate-800/60 ${isCurrentBldg ? 'bg-voltablue-100/50 dark:bg-voltablue-950/30' : ''}`;
           
           row.innerHTML = `
             <td class="py-2.5 px-3 font-mono font-bold text-slate-500 dark:text-slate-400">${index + 1}</td>
@@ -699,7 +717,7 @@
             <td class="py-2.5 px-3 font-mono font-bold text-voltacyan-700 dark:text-voltacyan-300">${part.fastenalNo !== 'N/A' ? part.fastenalNo : '—'}</td>
             <td class="py-2.5 px-3 text-slate-700 dark:text-slate-300 max-w-[200px] truncate" title="${part.description}">${part.description}</td>
             <td class="py-2.5 px-3">
-              <span class="px-2 py-0.5 rounded-md font-mono text-[11px] font-bold ${isCurrentBldg ? 'bg-voltablue-100 dark:bg-voltablue-900/60 text-voltablue-800 dark:text-voltablue-200' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}">
+              <span class="px-2 py-0.5 rounded-md font-mono text-[11px] font-bold ${isCurrentBldg ? 'bg-voltablue-200/80 dark:bg-voltablue-900/60 text-voltablue-900 dark:text-voltablue-200' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-400'}">
                 ${loc.building}
               </span>
             </td>
@@ -708,15 +726,14 @@
             <td class="py-2.5 px-3">
               <span class="px-2 py-0.5 rounded-md text-[10px] font-bold ${
                 isLocPending 
-                  ? 'bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800' 
-                  : 'bg-voltagreen-50 dark:bg-voltagreen-950 text-voltagreen-700 dark:text-voltagreen-300 border border-voltagreen-200 dark:border-voltagreen-800'
+                  ? 'bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800' 
+                  : 'bg-voltagreen-100 dark:bg-voltagreen-950 text-voltagreen-800 dark:text-voltagreen-300 border border-voltagreen-300 dark:border-voltagreen-800'
               }">
                 ${isLocPending ? 'Pending VMI' : 'Live on Floor'}
               </span>
             </td>
           `;
 
-          // Clicking a table row focuses that building map
           row.addEventListener("click", () => {
             if (currentBuilding !== loc.building) {
               currentBuilding = loc.building;
@@ -735,7 +752,7 @@
       lucide.createIcons();
     }
 
-    // 8. Render All Pins on Floor Plan
+    // 8. Render All Location Pins for Selected Part
     function renderPinsForPart(part) {
       pinsOverlay.innerHTML = "";
       const isFastenal = part.supplyType.toLowerCase().includes("fastenal");
@@ -764,16 +781,16 @@
           <div class="relative w-8 h-8 rounded-full border-2 border-white dark:border-slate-900 shadow-md flex items-center justify-center text-white font-bold text-xs font-mono" style="background-color: ${pinColor};">
             ${pinNumber}
           </div>
-          <div class="mt-1 px-3 py-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg shadow-md text-center whitespace-nowrap z-30">
+          <div class="mt-1 px-3 py-1 bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg shadow-md text-center whitespace-nowrap z-30">
             <span class="text-[11px] font-bold block font-mono" style="color: ${pinColor};">${loc.locationCode}</span>
-            <span class="text-[10px] text-slate-600 dark:text-slate-300 block font-medium">${loc.binDetails}</span>
+            <span class="text-[10px] text-slate-700 dark:text-slate-300 block font-medium">${loc.binDetails}</span>
           </div>
         `;
         pinsOverlay.appendChild(pin);
       });
     }
 
-    // 9. MAP MANAGER (Add new maps without deleting old ones)
+    // 9. MAP MANAGER (Preserves all existing building maps)
     function renderMapsManagerList() {
       mapsListContainer.innerHTML = "";
       const bldgList = Array.from(allKnownBuildings);
@@ -781,23 +798,23 @@
       bldgList.forEach(name => {
         const hasCustomMap = !!buildingMaps[name];
         const row = document.createElement("div");
-        row.className = "flex items-center justify-between p-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs";
+        row.className = "flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-xl text-xs";
         
         row.innerHTML = `
           <div class="flex items-center gap-2">
             <i data-lucide="map-pin" class="w-3.5 h-3.5 ${hasCustomMap ? 'text-voltagreen-600' : 'text-slate-400'}"></i>
             <span class="font-bold text-slate-800 dark:text-slate-200 font-mono">${name}</span>
-            <span class="text-[10px] px-2 py-0.2 rounded font-semibold ${hasCustomMap ? 'bg-voltagreen-50 dark:bg-voltagreen-950 text-voltagreen-700 dark:text-voltagreen-300 border border-voltagreen-200 dark:border-voltagreen-800' : 'bg-slate-100 dark:bg-slate-800 text-slate-400'}">
+            <span class="text-[10px] px-2 py-0.2 rounded font-semibold ${hasCustomMap ? 'bg-voltagreen-100 dark:bg-voltagreen-950 text-voltagreen-800 dark:text-voltagreen-300 border border-voltagreen-300 dark:border-voltagreen-800' : 'bg-slate-200 dark:bg-slate-800 text-slate-500'}">
               ${hasCustomMap ? 'Custom Map' : 'Default SVG'}
             </span>
           </div>
           <div class="flex items-center gap-1.5">
-            <label class="cursor-pointer px-2.5 py-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg text-[11px] font-semibold transition">
+            <label class="cursor-pointer px-2.5 py-1 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg text-[11px] font-semibold transition">
               Update
               <input type="file" accept="image/*" class="hidden map-row-upload" data-bldg="${name}" />
             </label>
             ${hasCustomMap ? `
-              <button class="p-1 hover:bg-rose-50 dark:hover:bg-rose-950 text-rose-500 rounded-lg transition map-row-reset" data-bldg="${name}" title="Reset to default map">
+              <button class="p-1 hover:bg-rose-100 dark:hover:bg-rose-950 text-rose-500 rounded-lg transition map-row-reset" data-bldg="${name}" title="Reset map to default">
                 <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
               </button>
             ` : ''}
@@ -806,7 +823,6 @@
         mapsListContainer.appendChild(row);
       });
 
-      // Bind dynamic row upload & reset
       document.querySelectorAll(".map-row-upload").forEach(input => {
         input.addEventListener("change", (e) => {
           const bldg = e.target.getAttribute("data-bldg");
@@ -888,30 +904,21 @@
           btn.className = "filter-btn flex-1 py-1 rounded-lg text-slate-600 dark:text-slate-400 font-semibold hover:text-slate-900 dark:hover:text-white transition";
         });
         filterButtons[key].className = "filter-btn active flex-1 py-1 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-bold shadow-xs";
-        renderQuickResults();
+        handleSearchAndUpdate();
       });
     });
 
-    // 11. Search Input Handler
+    // 11. Instant Live Search Handler
     searchInput.addEventListener("input", () => {
       clearSearch.classList.toggle("hidden", searchInput.value.trim().length === 0);
-      renderQuickResults();
+      handleSearchAndUpdate();
     });
 
     clearSearch.addEventListener("click", () => {
       searchInput.value = "";
       clearSearch.classList.add("hidden");
       activePartKey = null;
-      selectedPartSummaryCard.classList.add("hidden");
-      pinsOverlay.innerHTML = "";
-      locationsTableBody.innerHTML = `
-        <tr>
-          <td colspan="8" class="text-center py-5 text-slate-400 dark:text-slate-500 text-xs">
-            No part selected. Search and select a part on the left to see all physical storage locations.
-          </td>
-        </tr>
-      `;
-      renderQuickResults();
+      handleSearchAndUpdate();
     });
 
     // 12. Calibration Workflow
@@ -919,12 +926,12 @@
       isCalibrating = !isCalibrating;
       pinsOverlay.classList.toggle("map-active-calibrate", isCalibrating);
       calibrateBtn.className = `flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border text-xs font-semibold shadow-xs transition ${
-        isCalibrating ? 'bg-voltablue-600 border-voltablue-600 text-white' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200'
+        isCalibrating ? 'bg-voltablue-600 border-voltablue-600 text-white' : 'bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200'
       }`;
       calibrateLabel.textContent = isCalibrating ? "Exit Calibration" : "Calibrate Pins";
       instructionBanner.textContent = isCalibrating 
-        ? `CALIBRATION MODE [${currentBuilding}]: Click anywhere on this building map to link a location pin.` 
-        : "Search and select any part to show physical location pins on the building map.";
+        ? `CALIBRATION MODE [${currentBuilding}]: Click anywhere on this building map to set a location pin.` 
+        : "Type part number or description in search to display storage locations.";
     });
 
     pinsOverlay.addEventListener("click", (e) => {
@@ -1005,7 +1012,7 @@
       a.remove();
     });
 
-    // Run Startup
+    // Startup
     initTheme();
     loadInventoryData();
   </script>
