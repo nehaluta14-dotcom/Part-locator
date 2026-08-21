@@ -90,7 +90,7 @@
         <h1 class="text-sm font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
           Voltagrid <span class="font-medium text-slate-400 dark:text-slate-600">|</span> <span class="font-semibold text-slate-700 dark:text-slate-200">Floor Stock and VMI (Fastenal) Parts Locator</span>
         </h1>
-        <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Multi-Building Real-Time Map & Material Flow System</p>
+        <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Interactive Floor Plan & Multi-Building Material Flow</p>
       </div>
     </div>
 
@@ -129,7 +129,7 @@
     </div>
   </header>
 
-  <!-- Calibration Banner (Appears only during calibration mode) -->
+  <!-- Calibration Banner -->
   <div id="calibrationStatusBar" class="hidden bg-amber-500 text-slate-950 px-6 py-2 text-xs font-bold flex items-center justify-between shadow-md z-30">
     <div class="flex items-center gap-2">
       <i data-lucide="crosshair" class="w-4 h-4 animate-spin"></i>
@@ -277,7 +277,7 @@
         </table>
       </div>
 
-      <!-- Floor Plan Canvas Viewport (Always visible and calibratable) -->
+      <!-- Floor Plan Canvas Viewport -->
       <div id="mapViewport" class="flex-1 bg-slate-200/60 dark:bg-slate-950 flex items-center justify-center p-6 overflow-auto relative">
         <div id="mapTransformLayer" class="relative inline-block transition-transform duration-200 origin-center">
           
@@ -336,34 +336,34 @@
     </div>
   </div>
 
-  <!-- Calibration Dropdown Modal -->
+  <!-- Calibration Dropdown Modal (Comprehensive Location Extractor) -->
   <div id="calibrateModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 flex items-center justify-center hidden">
     <div class="bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-2xl max-w-sm w-full p-5 shadow-2xl space-y-4">
       <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
         <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-          <i data-lucide="map-pin" class="w-4 h-4 text-voltablue-600 dark:text-voltacyan-400"></i> Define Rack / Location Position
+          <i data-lucide="map-pin" class="w-4 h-4 text-voltablue-600 dark:text-voltacyan-400"></i> Set Location / Rack Position
         </h3>
         <button id="closeCalibrateModal" class="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
 
       <div class="space-y-3 text-xs">
         <div>
-          <span class="text-slate-500 dark:text-slate-400 block mb-1 font-medium">Target Building:</span>
+          <span class="text-slate-500 dark:text-slate-400 block mb-1 font-medium">Target Building Map:</span>
           <span id="calibBuildingDisplay" class="font-bold text-voltablue-700 dark:text-voltacyan-400 font-mono"></span>
         </div>
 
         <div>
-          <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Choose Existing Location Code from Excel:</label>
-          <select id="calibrateLocationSelect" class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl p-2 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-voltablue-500/20 font-mono font-medium"></select>
+          <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Select Excel Location / Rack Code:</label>
+          <select id="calibrateLocationSelect" class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-voltablue-500/20 font-mono text-xs font-semibold"></select>
         </div>
 
-        <div>
-          <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Or Type Custom Rack / Shelf Name (e.g. Rack 1, GT-PHASE-1):</label>
+        <div class="pt-1">
+          <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Or Type Custom / New Rack Name:</label>
           <input 
             type="text" 
             id="customRackInput" 
-            placeholder="e.g., RACK 1 or GT PHASE 1: MISC3" 
-            class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl p-2 text-slate-900 dark:text-slate-100 font-mono text-xs placeholder-slate-400"
+            placeholder="e.g., GT PHASE 1 or RACK A-01" 
+            class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-slate-900 dark:text-slate-100 font-mono text-xs placeholder-slate-400 font-medium"
           />
         </div>
 
@@ -373,13 +373,13 @@
 
       <div class="flex justify-end gap-2 pt-2 border-t border-slate-200 dark:border-slate-800">
         <button id="cancelCalibBtn" class="px-3.5 py-2 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-semibold transition">Cancel</button>
-        <button id="saveCalibBtn" class="px-3.5 py-2 bg-voltablue-600 hover:bg-voltablue-700 text-white rounded-xl text-xs font-semibold shadow-xs transition">Save Rack Position</button>
+        <button id="saveCalibBtn" class="px-3.5 py-2 bg-voltablue-600 hover:bg-voltablue-700 text-white rounded-xl text-xs font-semibold shadow-xs transition">Save Position</button>
       </div>
     </div>
   </div>
 
   <script>
-    // Default SVGs
+    // Embedded SVGs
     const defaultLightSvg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='650' viewBox='0 0 1000 650'><rect width='1000' height='650' fill='%23f1f5f9'/><defs><pattern id='grid' width='30' height='30' patternUnits='userSpaceOnUse'><path d='M 30 0 L 0 0 0 30' fill='none' stroke='%23cbd5e1' stroke-width='1'/></pattern></defs><rect width='1000' height='650' fill='url(%23grid)'/><rect x='40' y='40' width='920' height='570' rx='12' fill='none' stroke='%2394a3b8' stroke-width='2'/><rect x='80' y='80' width='200' height='120' rx='10' fill='%23e0f2fe' stroke='%237dd3fc' stroke-width='1.5'/><text x='180' y='145' fill='%230369a1' font-size='13' text-anchor='middle' font-weight='bold' font-family='sans-serif'>PROPELL RACK A-01</text><rect x='340' y='80' width='200' height='120' rx='10' fill='%23e0f2fe' stroke='%237dd3fc' stroke-width='1.5'/><text x='440' y='145' fill='%230369a1' font-size='13' text-anchor='middle' font-weight='bold' font-family='sans-serif'>PROPELL RACK A-02</text><rect x='80' y='260' width='200' height='120' rx='10' fill='%23cffafe' stroke='%2367e8f9' stroke-width='1.5'/><text x='180' y='325' fill='%230e7490' font-size='13' text-anchor='middle' font-weight='bold' font-family='sans-serif'>FASTENAL VMI B-01</text><rect x='340' y='260' width='200' height='120' rx='10' fill='%23cffafe' stroke='%2367e8f9' stroke-width='1.5'/><text x='440' y='325' fill='%230e7490' font-size='13' text-anchor='middle' font-weight='bold' font-family='sans-serif'>FASTENAL VMI B-02</text><rect x='600' y='80' width='320' height='300' rx='10' fill='%23ecfccb' stroke='%23bef264' stroke-width='1.5'/><text x='760' y='235' fill='%234d7c0f' font-size='14' text-anchor='middle' font-weight='bold' font-family='sans-serif'>ASSEMBLY STAGING</text><rect x='80' y='440' width='840' height='130' rx='10' fill='%23e2e8f0' stroke='%23cbd5e1' stroke-width='1.5'/><text x='500' y='510' fill='%23475569' font-size='14' text-anchor='middle' font-weight='bold' font-family='sans-serif'>RECEIVING & BULK STORAGE</text></svg>";
     const defaultDarkSvg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='650' viewBox='0 0 1000 650'><rect width='1000' height='650' fill='%23090d16'/><defs><pattern id='griddark' width='30' height='30' patternUnits='userSpaceOnUse'><path d='M 30 0 L 0 0 0 30' fill='none' stroke='%231e293b' stroke-width='1'/></pattern></defs><rect width='1000' height='650' fill='url(%23griddark)'/><rect x='40' y='40' width='920' height='570' rx='12' fill='none' stroke='%23334155' stroke-width='2'/><rect x='80' y='80' width='200' height='120' rx='10' fill='%23172554' stroke='%232563eb' stroke-width='1.5'/><text x='180' y='145' fill='%2360a5fa' font-size='13' text-anchor='middle' font-weight='bold' font-family='sans-serif'>PROPELL RACK A-01</text><rect x='340' y='80' width='200' height='120' rx='10' fill='%23172554' stroke='%232563eb' stroke-width='1.5'/><text x='440' y='145' fill='%2360a5fa' font-size='13' text-anchor='middle' font-weight='bold' font-family='sans-serif'>PROPELL RACK A-02</text><rect x='80' y='260' width='200' height='120' rx='10' fill='%23083344' stroke='%2306b6d4' stroke-width='1.5'/><text x='180' y='325' fill='%2322d3ee' font-size='13' text-anchor='middle' font-weight='bold' font-family='sans-serif'>FASTENAL VMI B-01</text><rect x='340' y='260' width='200' height='120' rx='10' fill='%23083344' stroke='%2306b6d4' stroke-width='1.5'/><text x='440' y='325' fill='%2322d3ee' font-size='13' text-anchor='middle' font-weight='bold' font-family='sans-serif'>FASTENAL VMI B-02</text><rect x='600' y='80' width='320' height='300' rx='10' fill='%2314532d' stroke='%2384cc16' stroke-width='1.5'/><text x='760' y='235' fill='%23a3e635' font-size='14' text-anchor='middle' font-weight='bold' font-family='sans-serif'>ASSEMBLY STAGING</text><rect x='80' y='440' width='840' height='130' rx='10' fill='%230f172a' stroke='%23334155' stroke-width='1.5'/><text x='500' y='510' fill='%2394a3b8' font-size='14' text-anchor='middle' font-weight='bold' font-family='sans-serif'>RECEIVING & BULK STORAGE</text></svg>";
 
@@ -394,6 +394,7 @@
     let currentFilter = "all";
     let groupedParts = [];
     let allKnownBuildings = new Set(["Main Facility"]);
+    let allKnownLocationsMasterSet = new Set(); // Stores all location codes from Excel
 
     // DOM Elements
     const searchInput = document.getElementById("searchInput");
@@ -444,7 +445,7 @@
       loadBuildingMap(currentBuilding);
     });
 
-    // 2. AUTO-LOAD INVENTORY DATA FROM REPOSITORY
+    // 2. AUTO-LOAD INVENTORY DATA
     async function loadInventoryData() {
       syncStatusText.textContent = "Checking...";
       syncDot.className = "w-2 h-2 rounded-full bg-voltacyan-500 animate-ping";
@@ -490,30 +491,36 @@
     setInterval(loadInventoryData, 3 * 60 * 1000);
     document.getElementById("manualSyncBtn").addEventListener("click", loadInventoryData);
 
-    // 3. Multi-Column Header Resolver
+    // 3. Flexible Header Resolver (Finds column name regardless of casing/spacing)
     function findVal(row, names) {
       const keys = Object.keys(row);
       for (const name of names) {
-        const key = keys.find(k => k.trim().toLowerCase() === name.toLowerCase());
+        const key = keys.find(k => k.trim().toLowerCase().replace(/[^a-z0-9]/g, '') === name.toLowerCase().replace(/[^a-z0-9]/g, ''));
         if (key && row[key] !== undefined && row[key] !== null) return String(row[key]).trim();
       }
       return "";
     }
 
-    // 4. Process Inventory
+    // 4. Process Inventory & Collect ALL Excel Location Codes
     function processInventory(rows) {
       const map = new Map();
       allKnownBuildings = new Set(Object.keys(buildingMaps));
+      allKnownLocationsMasterSet = new Set();
 
       rows.forEach(row => {
-        const building = findVal(row, ["Building", "Building Name", "Facility", "Plant", "Bldg"]) || "Main Facility";
-        const propellNo = findVal(row, ["Propell Part #", "Propell Part Number", "Propell #", "Propell Part", "Part Number", "Part No", "Part#"]).toUpperCase();
-        const fastenalNo = findVal(row, ["Fastenal Part #", "Fastenal Part Number", "Fastenal #", "Fastenal SKU", "Fastenal Part"]).toUpperCase();
-        const desc = findVal(row, ["Description", "Part Description", "Desc", "Name"]);
+        const building = findVal(row, ["Building", "Building Name", "Facility", "Plant", "Bldg", "Area"]) || "Main Facility";
+        const propellNo = findVal(row, ["Propell Part #", "Propell Part Number", "Propell #", "Propell Part", "Part Number", "Part No", "Part#", "Item Code"]).toUpperCase();
+        const fastenalNo = findVal(row, ["Fastenal Part #", "Fastenal Part Number", "Fastenal #", "Fastenal SKU", "Fastenal Part", "SKU"]).toUpperCase();
+        const desc = findVal(row, ["Description", "Part Description", "Desc", "Name", "Item Description"]);
         const supplyType = findVal(row, ["Supply Type", "Supplier", "Type"]) || (fastenalNo && fastenalNo !== "N/A" ? "Fastenal VMI" : "Propell Floor Stock");
         const status = findVal(row, ["Fastenal Status", "Status", "VMI Status", "Availability"]) || "Live on Floor";
-        const locCode = findVal(row, ["Location Code", "Location", "Rack ID", "Rack", "Loc"]).toUpperCase();
-        const bin = findVal(row, ["Bin Details", "Bin", "Shelf", "Shelf / Bin", "Position"]);
+        
+        // Comprehensive check for rack / location code
+        const locCode = findVal(row, ["Location Code", "Location", "Rack ID", "Rack", "Loc", "Rack / Location", "Storage Location"]).toUpperCase();
+        const bin = findVal(row, ["Bin Details", "Bin", "Shelf", "Shelf / Bin", "Position", "Slot"]);
+
+        if (locCode) allKnownLocationsMasterSet.add(locCode);
+        if (bin && bin.includes(":")) allKnownLocationsMasterSet.add(bin.toUpperCase());
 
         const uniqueKey = propellNo || fastenalNo;
         if (!uniqueKey) return;
@@ -538,8 +545,8 @@
         if (locCode || bin) {
           partObj.locations.push({
             building: building,
-            locationCode: locCode || "GENERAL",
-            binDetails: bin || "Standard Bin / Staging",
+            locationCode: locCode || bin || "GENERAL",
+            binDetails: bin || locCode || "Standard Bin / Staging",
             status: status
           });
         }
@@ -963,7 +970,7 @@
       handleSearchAndUpdate();
     });
 
-    // 12. CALIBRATION WORKFLOW (Click map to link any rack coordinate)
+    // 12. CALIBRATION WORKFLOW WITH EXCEL LOCATION POPULATION
     function toggleCalibration(forceState) {
       isCalibrating = forceState !== undefined ? forceState : !isCalibrating;
       pinsOverlay.classList.toggle("map-active-calibrate", isCalibrating);
@@ -992,20 +999,28 @@
       document.getElementById("calibBuildingDisplay").textContent = currentBuilding;
       document.getElementById("customRackInput").value = "";
 
-      // Populate select dropdown with known location codes from Excel
+      // Populate select dropdown with EVERY location code from Excel
       const select = document.getElementById("calibrateLocationSelect");
       select.innerHTML = `<option value="">-- Choose from Excel or type below --</option>`;
-      const bldgCodes = new Set();
       
+      const distinctCodes = new Set();
+
+      // Priority 1: Locations linked to current building
       groupedParts.forEach(p => {
-        p.locations.filter(l => l.building === currentBuilding).forEach(l => bldgCodes.add(l.locationCode));
+        p.locations.forEach(l => {
+          if (l.locationCode && l.locationCode !== "GENERAL") distinctCodes.add(l.locationCode);
+        });
       });
 
-      Array.from(bldgCodes).sort().forEach(code => {
+      // Priority 2: Add all raw location codes scanned from Excel
+      allKnownLocationsMasterSet.forEach(code => distinctCodes.add(code));
+
+      // Populate dropdown
+      Array.from(distinctCodes).sort().forEach(code => {
         const isMapped = !!rackCoordinates[`${currentBuilding}:::${code}`];
         const opt = document.createElement("option");
         opt.value = code;
-        opt.textContent = `${code} ${isMapped ? '(Currently Mapped ✓)' : '(Unmapped)'}`;
+        opt.textContent = `${code} ${isMapped ? '(Currently Mapped ✓)' : ''}`;
         select.appendChild(opt);
       });
 
